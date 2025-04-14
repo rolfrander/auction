@@ -1,0 +1,7 @@
+{:main auction.portfolio
+ :optimizations :none
+ :pretty-print true
+ :source-map true
+ :asset-path "/portfolio/out"
+ :output-to "target/public/portfolio/app.js"
+ :output-dir "target/public/portfolio/out"}

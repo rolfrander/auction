@@ -1,5 +1,6 @@
 (ns auction.client.main)
 
+
 (defn render []
   )
 
