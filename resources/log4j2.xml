@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration xmlns="https://logging.apache.org/xml/ns"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="
+                   https://logging.apache.org/xml/ns
+                   https://logging.apache.org/xml/ns/log4j-config-2.xsd"
+                   
+               monitorInterval="30">
+  
+  <Appenders>
+    <Console name="CONSOLE">
+      <PatternLayout pattern="%p - %m%n"/>
+    </Console>
+    <File name="MAIN" fileName="debug.log">
+      <PatternLayout pattern="%d{ABSOLUTE} [%t] %c %p %m%n"/>
+    </File>
+  </Appenders>
+  <Loggers>
+    <Root level="DEBUG">
+      <AppenderRef ref="MAIN"/>
+    </Root>
+    <Logger name="org.eclipse" level="INFO">
+      <AppenderRef ref="MAIN"/>
+    </Logger>
+    <Logger name="http" level="DEBUG">
+        <AppenderRef ref="MAIN"/>
+    </Logger>
+  </Loggers>
+</Configuration>
