@@ -5,6 +5,8 @@
         ring/ring-jetty-adapter           {:mvn/version "1.13.0"}
         ring/ring-defaults                {:mvn/version "0.5.0"}
         metosin/reitit                    {:mvn/version "0.7.2"}
+        metosin/reitit-swagger            {:mvn/version "0.8.0"}
+
         ;org.ring-clojure/ring-websocket-async {:mvn/version "0.2.0"}
         ;org.ring-clojure/ring-websocket-transit {:mvn/version "0.1.0"}
         ;org.ring-clojure/ring-websocket-middleware {:mvn/version "0.2.1"}
@@ -24,9 +26,10 @@
         ;haslett/haslett {:mvn/version "0.2.0"}
         }
  :aliases {:dev {:extra-paths ["test" "dev" "dev-resources"]
-                 :extra-deps {integrant/repl {:mvn/version "0.4.0"}
+                 :extra-deps {integrant/repl            {:mvn/version "0.4.0"}
                               com.bhauman/figwheel-main {:mvn/version "0.2.20"}
-                              no.cjohansen/portfolio {:mvn/version "2025.01.28"}
+                              no.cjohansen/portfolio    {:mvn/version "2025.01.28"}
+                              metosin/reitit-swagger-ui {:mvn/version "0.8.0"}
                               }
                  :jvm-opts ["-XX:-OmitStackTraceInFastThrow"]}
            :logging {:jvm-opts ["-Dclojure.tools.logging.factory=clojure.tools.logging.impl/log4j2-factory"]}
