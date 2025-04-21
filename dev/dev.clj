@@ -12,8 +12,12 @@
   (repl/halt))
 
 (comment
-  (start)
-  (stop)
+  (do
+    (stop)
+    (start))
   integrant.repl.state/system
+  (integrant.repl/clear)
   (log/debug "test")
+
+  
   )
