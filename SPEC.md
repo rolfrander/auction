@@ -52,7 +52,7 @@ API available for logged in users
 
 The API-s should be REST-like JSON-endpoints. Images shall be stored in S3. Other data shall be stored in an SQLite database, but the database integration should be encapsulated in a way which enables this to be changed to PostgreSQL or another database later.
 
-For the first version, use basic-auth for authentication with a hard-coded password.
+Authentication is done using a form, checked against username and password in .env
 
 Describe the API using an Open-API spec and make it testable with swagger.
 
