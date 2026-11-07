@@ -77,6 +77,24 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 
 export const getHealth = () => request<Health>("GET", "/health");
 
+// --- session (HttpOnly cookie set by /login, sent automatically) ---
+export interface Session {
+  username: string;
+}
+export const login = (username: string, password: string) =>
+  request<Session>("POST", "/login", { username, password });
+export const logout = () => request<void>("POST", "/logout");
+/** Current session, or null when not logged in. */
+export async function getSession(): Promise<Session | null> {
+  try {
+    return await request<Session>("GET", "/admin/session");
+  } catch (e) {
+    if (isUnauthorized(e)) return null;
+    throw e;
+  }
+}
+export const isUnauthorized = (e: unknown): boolean => e instanceof ApiError && e.status === 401;
+
 // --- public ---
 export const listVisibleCatalogs = () => request<Catalog[]>("GET", "/catalogs");
 export const listVisibleCatalogItems = (catalogId: string) =>

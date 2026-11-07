@@ -1,5 +1,6 @@
 (ns auksjon.main
-  (:require [auksjon.config :as config]
+  (:require [auksjon.auth :as auth]
+            [auksjon.config :as config]
             [auksjon.db.sqlite :as sqlite]
             [auksjon.handler :as handler]
             [auksjon.images.s3 :as s3]
@@ -21,9 +22,13 @@
                           (throw (ex-info "Missing config S3_WEB_URL" {:key "S3_WEB_URL"})))
                       #"/+$" "")))
 
-(defn start-server [{:keys [port store image-store image-base-url static-dir join?]}]
+(defn auth-config
+  ([] (auth-config (config/load-env)))
+  ([env] (auth/config env)))
+
+(defn start-server [{:keys [port store image-store image-base-url auth static-dir join?]}]
   (jetty/run-jetty (handler/app {:store store :image-store image-store
-                                 :image-base-url image-base-url :static-dir static-dir})
+                                 :image-base-url image-base-url :auth auth :static-dir static-dir})
                    {:port port :host "0.0.0.0" :join? join?}))
 
 (defn -main [& _args]
@@ -32,5 +37,5 @@
         static-dir (get env "STATIC_DIR" "../frontend/dist")]
     (println (str "Listening on http://0.0.0.0:" port " (API docs: /api/docs)"))
     (start-server {:port port :store (create-store env) :image-store (create-image-store env)
-                   :image-base-url (image-base-url env)
+                   :image-base-url (image-base-url env) :auth (auth-config env)
                    :static-dir static-dir :join? true})))

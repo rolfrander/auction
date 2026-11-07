@@ -1,11 +1,16 @@
 (ns auksjon.handler-test
-  (:require [auksjon.handler :as handler]
-            [auksjon.test-util :refer [fresh-image-store fresh-store]]
+  (:require [auksjon.auth :as auth]
+            [auksjon.handler :as handler]
+            [auksjon.test-util :refer [authed fresh-image-store fresh-store session-cookie test-auth]]
+            [clojure.string :as str]
             [clojure.test :refer [deftest is testing]]
             [muuntaja.core :as m]
             [ring.mock.request :as mock]))
 
-(defn- new-app [] (handler/app {:store (fresh-store) :image-store (fresh-image-store) :image-base-url "http://img.test"}))
+(defn- raw-app [] (handler/app {:store (fresh-store) :image-store (fresh-image-store)
+                                :image-base-url "http://img.test" :auth test-auth}))
+
+(defn- new-app [] (authed (raw-app)))
 
 (defn- call
   ([app method path] (call app method path nil))
@@ -27,6 +32,82 @@
 
 (deftest not-found-test
   (is (= 404 (:status (call (new-app) :get "/api/nope")))))
+
+(defn- set-cookie [resp] (get-in resp [:headers "Set-Cookie"]))
+
+(defn- cookie-pair
+  "name=value part of a Set-Cookie header, ready to send back as Cookie."
+  [set-cookie]
+  (first (str/split set-cookie #";")))
+
+(deftest admin-auth-test
+  (let [app (raw-app)
+        req (fn [method path cookie]
+              (app (cond-> (mock/request method path)
+                     cookie (mock/header "Cookie" cookie))))]
+    (testing "admin routes require a session"
+      (doseq [[method path] [[:get "/api/admin/items"] [:get "/api/admin/catalogs"]
+                             [:delete "/api/admin/items"] [:post "/api/admin/images"]
+                             [:get "/api/admin/session"] [:get "/api/admin"]]]
+        (let [resp (req method path nil)]
+          (is (= 401 (:status resp)) path)
+          (is (nil? (get-in resp [:headers "WWW-Authenticate"])) "no browser basic-auth prompt"))))
+    (testing "invalid cookies"
+      (doseq [c ["auksjon_session=garbage"
+                 "auksjon_session=99999999999999.AAAA"
+                 (str "auksjon_session=" (auth/session-token test-auth (- (System/currentTimeMillis) 1000)))
+                 (str "auksjon_session=" (auth/session-token (assoc test-auth :user "root")))
+                 (str "auksjon_session=" (auth/session-token (assoc test-auth :password-hash (auth/hash-password "other" 1000))))
+                 (str "other=" (auth/session-token test-auth))]]
+        (is (= 401 (:status (req :get "/api/admin/items" c))) c)))
+    (testing "valid cookie, also among other cookies"
+      (is (= 200 (:status (req :get "/api/admin/items" (session-cookie)))))
+      (is (= 200 (:status (req :get "/api/admin/items" (str "a=b; " (session-cookie) "; c=d"))))))
+    (testing "public routes stay open"
+      (is (= 200 (:status (req :get "/api/health" nil))))
+      (is (= 200 (:status (req :get "/api/catalogs" nil))))
+      (is (= 200 (:status (req :get "/api/swagger.json" nil)))))))
+
+(deftest login-test
+  (let [app (raw-app)
+        login (fn [body] (app (-> (mock/request :post "/api/login") (mock/json-body body))))]
+    (testing "bad credentials"
+      (doseq [body [{:username "admin" :password "wrong"}
+                    {:username "root" :password "secret"}]]
+        (let [resp (login body)]
+          (is (= 401 (:status resp)))
+          (is (nil? (set-cookie resp)))))
+      (is (= 400 (:status (login {:username "admin"}))))
+      (is (= 400 (:status (login {:username "admin" :password "secret" :extra 1})))))
+    (testing "login sets a cookie that authorizes admin routes"
+      (let [resp (login {:username "admin" :password "secret"})
+            sc (set-cookie resp)]
+        (is (= 200 (:status resp)))
+        (is (= {:username "admin"} (m/decode-response-body resp)))
+        (is (re-find #"HttpOnly" sc))
+        (is (re-find #"SameSite=Strict" sc))
+        (is (re-find #"Path=/api" sc))
+        (is (not (re-find #"Secure" sc)) "plain http")
+        (let [s (app (-> (mock/request :get "/api/admin/session") (mock/header "Cookie" (cookie-pair sc))))]
+          (is (= 200 (:status s)))
+          (is (= {:username "admin"} (m/decode-response-body s))))))
+    (testing "Secure behind https proxy"
+      (is (re-find #"Secure" (set-cookie (app (-> (mock/request :post "/api/login")
+                                                  (mock/json-body {:username "admin" :password "secret"})
+                                                  (mock/header "X-Forwarded-Proto" "https")))))))
+    (testing "logout clears the cookie"
+      (let [resp (app (mock/request :post "/api/logout"))]
+        (is (= 204 (:status resp)))
+        (is (re-find #"^auksjon_session=;.*Max-Age=0" (set-cookie resp)))))))
+
+(deftest auth-config-test
+  (is (thrown? Exception (auth/config {})))
+  (is (thrown? Exception (auth/config {"ADMIN_USER" "a" "ADMIN_PASSWORD_HASH" "plaintext"})))
+  (let [h (auth/hash-password "pw" 1000)]
+    (is (= {:user "a" :password-hash h} (auth/config {"ADMIN_USER" "a" "ADMIN_PASSWORD_HASH" h})))
+    (is (auth/verify-password "pw" h))
+    (is (not (auth/verify-password "pW" h)))
+    (is (not= h (auth/hash-password "pw" 1000)) "salted")))
 
 (deftest swagger-test
   (let [{:keys [status body]} (call (new-app) :get "/api/swagger.json")]
@@ -122,7 +203,7 @@
               (.mkdirs))
         _ (.mkdirs (java.io.File. dir "admin"))
         _ (spit (java.io.File. dir "admin/index.html") "<html>admin</html>")
-        app (handler/app {:store (fresh-store) :static-dir (.getPath dir)})]
+        app (handler/app {:store (fresh-store) :auth test-auth :static-dir (.getPath dir)})]
     (doseq [uri ["/admin" "/admin/" "/admin/items/123"]]
       (let [resp (app (mock/request :get uri))]
         (is (= 200 (:status resp)) uri)

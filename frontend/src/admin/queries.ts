@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tansta
 import * as api from "../api";
 
 export const keys = {
+  session: ["session"] as const,
   catalogs: ["catalogs"] as const,
   catalog: (id: string) => ["catalogs", id] as const,
   catalogItems: (id: string) => ["catalogs", id, "items"] as const,
@@ -16,6 +17,36 @@ const invalidateAll = (qc: QueryClient) =>
     qc.invalidateQueries({ queryKey: keys.catalogs }),
     qc.invalidateQueries({ queryKey: keys.items }),
   ]);
+
+// --- session ---
+export const useSession = () =>
+  useQuery({ queryKey: keys.session, queryFn: api.getSession, staleTime: Infinity });
+
+/** Marks the user as logged out; the AuthGate then shows the login page. */
+export const markLoggedOut = (qc: QueryClient) => qc.setQueryData(keys.session, null);
+
+export function useLogin() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ username, password }: { username: string; password: string }) => api.login(username, password),
+    onSuccess: (session) => {
+      qc.setQueryData(keys.session, session);
+      // refetch anything that failed with 401 while logged out
+      return qc.invalidateQueries({ predicate: (q) => q.queryKey[0] !== keys.session[0] });
+    },
+  });
+}
+
+export function useLogout() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.logout,
+    onSuccess: () => {
+      qc.clear();
+      markLoggedOut(qc);
+    },
+  });
+}
 
 // --- queries ---
 export const useCatalogs = () => useQuery({ queryKey: keys.catalogs, queryFn: api.listCatalogs });

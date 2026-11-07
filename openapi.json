@@ -1,82 +1,145 @@
 {
-  "definitions": null,
+  "swagger": "2.0",
+  "x-id": [
+    "reitit.swagger/default"
+  ],
   "info": {
     "title": "Auksjon API",
-    "version": "0.1.0"
+    "version": "0.1.0",
+    "description": "/api/admin/* requires the session cookie set by POST /api/login."
   },
   "paths": {
-    "/api/catalogs/{id}/items": {
+    "/api/health": {
       "get": {
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        },
+        "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
         "consumes": [
           "application/json",
           "application/transit+msgpack",
           "application/transit+json",
           "application/edn"
         ],
+        "parameters": [],
+        "summary": "Health check"
+      }
+    },
+    "/api/catalogs": {
+      "get": {
         "responses": {
-          "404": {
-            "schema": {
-              "properties": {
-                "error": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "error"
-              ],
-              "type": "object",
-              "additionalProperties": false
-            },
-            "description": ""
-          },
           "200": {
             "schema": {
+              "type": "array",
               "items": {
+                "type": "object",
                 "properties": {
-                  "startingPrice": {
-                    "minimum": 0,
-                    "type": "integer",
-                    "x-nullable": true,
-                    "format": "int64"
-                  },
-                  "catalogs": {
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "type": "array"
-                  },
-                  "createdAt": {
-                    "type": "string"
-                  },
                   "id": {
                     "type": "string",
                     "format": "uuid"
                   },
-                  "priceLow": {
-                    "minimum": 0,
-                    "type": "integer",
-                    "x-nullable": true,
-                    "format": "int64"
+                  "name": {
+                    "type": "string"
                   },
-                  "priceHigh": {
-                    "minimum": 0,
-                    "type": "integer",
-                    "x-nullable": true,
-                    "format": "int64"
+                  "date": {
+                    "type": "string",
+                    "x-nullable": true
+                  },
+                  "visible": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "date",
+                  "visible"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "description": ""
+          }
+        },
+        "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "parameters": [],
+        "summary": "List visible catalogs",
+        "tags": [
+          "public"
+        ]
+      }
+    },
+    "/api/catalogs/{id}/items": {
+      "get": {
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
                   },
                   "title": {
                     "type": "string"
                   },
-                  "images": {
-                    "items": {
-                      "type": "string"
-                    },
-                    "type": "array",
-                    "description": "The first is the main image"
-                  },
                   "description": {
                     "type": "string"
+                  },
+                  "images": {
+                    "description": "The first is the main image",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "priceLow": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0,
+                    "x-nullable": true
+                  },
+                  "priceHigh": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0,
+                    "x-nullable": true
+                  },
+                  "startingPrice": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0,
+                    "x-nullable": true
+                  },
+                  "createdAt": {
+                    "type": "string"
+                  },
+                  "catalogs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
                   }
                 },
                 "required": [
@@ -90,19 +153,34 @@
                   "createdAt",
                   "catalogs"
                 ],
-                "type": "object",
                 "additionalProperties": false
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
               },
-              "type": "array"
+              "required": [
+                "error"
+              ],
+              "additionalProperties": false
             },
             "description": ""
           }
         },
-        "tags": [
-          "public"
-        ],
-        "summary": "List items in a visible catalog, in catalog order",
         "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
           "application/json",
           "application/transit+msgpack",
           "application/transit+json",
@@ -110,27 +188,329 @@
         ],
         "parameters": [
           {
+            "in": "path",
             "name": "id",
-            "required": true,
-            "type": "string",
             "description": "",
-            "format": "uuid",
-            "in": "path"
+            "type": "string",
+            "required": true,
+            "format": "uuid"
           }
+        ],
+        "summary": "List items in a visible catalog, in catalog order",
+        "tags": [
+          "public"
+        ]
+      }
+    },
+    "/api/login": {
+      "post": {
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "username"
+              ],
+              "additionalProperties": false
+            },
+            "description": ""
+          },
+          "401": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "error"
+              ],
+              "additionalProperties": false
+            },
+            "description": ""
+          }
+        },
+        "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "username",
+                "password"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ],
+        "summary": "Log in; sets the session cookie used by /api/admin/*",
+        "tags": [
+          "session"
+        ]
+      }
+    },
+    "/api/logout": {
+      "post": {
+        "responses": {
+          "204": {
+            "description": "Logged out"
+          }
+        },
+        "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "parameters": [],
+        "summary": "Log out; clears the session cookie",
+        "tags": [
+          "session"
+        ]
+      }
+    },
+    "/api/admin/session": {
+      "get": {
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "username"
+              ],
+              "additionalProperties": false
+            },
+            "description": ""
+          }
+        },
+        "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "parameters": [],
+        "summary": "Current session (401 if not logged in)",
+        "tags": [
+          "session"
+        ]
+      }
+    },
+    "/api/admin/catalogs": {
+      "get": {
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "date": {
+                    "type": "string",
+                    "x-nullable": true
+                  },
+                  "visible": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "date",
+                  "visible"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "description": ""
+          }
+        },
+        "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "parameters": [],
+        "summary": "List all catalogs",
+        "tags": [
+          "admin: catalogs"
+        ]
+      },
+      "post": {
+        "responses": {
+          "201": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "date": {
+                  "type": "string",
+                  "x-nullable": true
+                },
+                "visible": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "date",
+                "visible"
+              ],
+              "additionalProperties": false
+            },
+            "description": ""
+          }
+        },
+        "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "date": {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                  "example": "2026-12-01",
+                  "x-nullable": true
+                },
+                "visible": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          }
+        ],
+        "summary": "Create catalog",
+        "tags": [
+          "admin: catalogs"
         ]
       }
     },
     "/api/admin/catalogs/{id}": {
-      "delete": {
-        "consumes": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
+      "get": {
         "responses": {
+          "200": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "date": {
+                  "type": "string",
+                  "x-nullable": true
+                },
+                "visible": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "date",
+                "visible"
+              ],
+              "additionalProperties": false
+            },
+            "description": ""
+          },
           "404": {
             "schema": {
+              "type": "object",
               "properties": {
                 "error": {
                   "type": "string"
@@ -139,20 +519,18 @@
               "required": [
                 "error"
               ],
-              "type": "object",
               "additionalProperties": false
             },
             "description": ""
-          },
-          "204": {
-            "description": ""
           }
         },
-        "tags": [
-          "admin: catalogs"
-        ],
-        "summary": "Delete catalog (items are kept)",
         "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
           "application/json",
           "application/transit+msgpack",
           "application/transit+json",
@@ -160,40 +538,72 @@
         ],
         "parameters": [
           {
+            "in": "path",
             "name": "id",
-            "required": true,
-            "type": "string",
             "description": "",
-            "format": "uuid",
-            "in": "path"
+            "type": "string",
+            "required": true,
+            "format": "uuid"
           }
+        ],
+        "summary": "Get catalog",
+        "tags": [
+          "admin: catalogs"
+        ]
+      },
+      "delete": {
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "404": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "error"
+              ],
+              "additionalProperties": false
+            },
+            "description": ""
+          }
+        },
+        "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          }
+        ],
+        "summary": "Delete catalog (items are kept)",
+        "tags": [
+          "admin: catalogs"
         ]
       },
       "patch": {
-        "consumes": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
         "responses": {
-          "404": {
-            "schema": {
-              "properties": {
-                "error": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "error"
-              ],
-              "type": "object",
-              "additionalProperties": false
-            },
-            "description": ""
-          },
           "200": {
             "schema": {
+              "type": "object",
               "properties": {
                 "id": {
                   "type": "string",
@@ -202,12 +612,12 @@
                 "name": {
                   "type": "string"
                 },
-                "visible": {
-                  "type": "boolean"
-                },
                 "date": {
                   "type": "string",
                   "x-nullable": true
+                },
+                "visible": {
+                  "type": "boolean"
                 }
               },
               "required": [
@@ -216,68 +626,153 @@
                 "date",
                 "visible"
               ],
+              "additionalProperties": false
+            },
+            "description": ""
+          },
+          "404": {
+            "schema": {
               "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "error"
+              ],
               "additionalProperties": false
             },
             "description": ""
           }
         },
-        "tags": [
-          "admin: catalogs"
+        "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "date": {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+                  "example": "2026-12-01",
+                  "x-nullable": true
+                },
+                "visible": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
         ],
         "summary": "Update catalog (partial)",
-        "produces": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "type": "string",
-            "description": "",
-            "format": "uuid",
-            "in": "path"
-          },
-          {
-            "schema": {
-              "properties": {
-                "name": {
-                  "minLength": 1,
-                  "type": "string"
-                },
-                "visible": {
-                  "type": "boolean"
-                },
-                "date": {
-                  "example": "2026-12-01",
-                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
-                  "type": "string",
-                  "x-nullable": true
-                }
-              },
-              "type": "object",
-              "additionalProperties": false
-            },
-            "name": "body",
-            "required": true,
-            "description": "",
-            "in": "body"
-          }
+        "tags": [
+          "admin: catalogs"
         ]
-      },
+      }
+    },
+    "/api/admin/catalogs/{id}/items": {
       "get": {
-        "consumes": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
         "responses": {
+          "200": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "images": {
+                    "description": "The first is the main image",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "priceLow": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0,
+                    "x-nullable": true
+                  },
+                  "priceHigh": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0,
+                    "x-nullable": true
+                  },
+                  "startingPrice": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0,
+                    "x-nullable": true
+                  },
+                  "createdAt": {
+                    "type": "string"
+                  },
+                  "catalogs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "description",
+                  "images",
+                  "priceLow",
+                  "priceHigh",
+                  "startingPrice",
+                  "createdAt",
+                  "catalogs"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "description": ""
+          },
           "404": {
             "schema": {
+              "type": "object",
               "properties": {
                 "error": {
                   "type": "string"
@@ -286,46 +781,18 @@
               "required": [
                 "error"
               ],
-              "type": "object",
-              "additionalProperties": false
-            },
-            "description": ""
-          },
-          "200": {
-            "schema": {
-              "properties": {
-                "id": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "visible": {
-                  "type": "boolean"
-                },
-                "date": {
-                  "type": "string",
-                  "x-nullable": true
-                }
-              },
-              "required": [
-                "id",
-                "name",
-                "date",
-                "visible"
-              ],
-              "type": "object",
               "additionalProperties": false
             },
             "description": ""
           }
         },
-        "tags": [
-          "admin: catalogs"
-        ],
-        "summary": "Get catalog",
         "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
           "application/json",
           "application/transit+msgpack",
           "application/transit+json",
@@ -333,110 +800,489 @@
         ],
         "parameters": [
           {
+            "in": "path",
             "name": "id",
-            "required": true,
-            "type": "string",
             "description": "",
-            "format": "uuid",
-            "in": "path"
+            "type": "string",
+            "required": true,
+            "format": "uuid"
           }
+        ],
+        "summary": "List items in catalog, in catalog order",
+        "tags": [
+          "admin: catalogs"
+        ]
+      },
+      "put": {
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "images": {
+                    "description": "The first is the main image",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "priceLow": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0,
+                    "x-nullable": true
+                  },
+                  "priceHigh": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0,
+                    "x-nullable": true
+                  },
+                  "startingPrice": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0,
+                    "x-nullable": true
+                  },
+                  "createdAt": {
+                    "type": "string"
+                  },
+                  "catalogs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "description",
+                  "images",
+                  "priceLow",
+                  "priceHigh",
+                  "startingPrice",
+                  "createdAt",
+                  "catalogs"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "error"
+              ],
+              "additionalProperties": false
+            },
+            "description": ""
+          },
+          "404": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "error"
+              ],
+              "additionalProperties": false
+            },
+            "description": ""
+          }
+        },
+        "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "summary": "Replace catalog contents / reorder (ordered list of item ids)",
+        "tags": [
+          "admin: catalogs"
+        ]
+      }
+    },
+    "/api/admin/catalogs/{id}/items/{item-id}": {
+      "put": {
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "images": {
+                    "description": "The first is the main image",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "priceLow": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0,
+                    "x-nullable": true
+                  },
+                  "priceHigh": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0,
+                    "x-nullable": true
+                  },
+                  "startingPrice": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0,
+                    "x-nullable": true
+                  },
+                  "createdAt": {
+                    "type": "string"
+                  },
+                  "catalogs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "description",
+                  "images",
+                  "priceLow",
+                  "priceHigh",
+                  "startingPrice",
+                  "createdAt",
+                  "catalogs"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "error"
+              ],
+              "additionalProperties": false
+            },
+            "description": ""
+          }
+        },
+        "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          },
+          {
+            "in": "path",
+            "name": "item-id",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          },
+          {
+            "in": "query",
+            "name": "position",
+            "description": "",
+            "type": "integer",
+            "required": false,
+            "format": "int64",
+            "minimum": 0
+          }
+        ],
+        "summary": "Add item to catalog (or move it). position: 0-based, default last",
+        "tags": [
+          "admin: catalogs"
+        ]
+      },
+      "delete": {
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "404": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "error"
+              ],
+              "additionalProperties": false
+            },
+            "description": ""
+          }
+        },
+        "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          },
+          {
+            "in": "path",
+            "name": "item-id",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          }
+        ],
+        "summary": "Remove item from catalog",
+        "tags": [
+          "admin: catalogs"
         ]
       }
     },
     "/api/admin/items": {
-      "delete": {
-        "consumes": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
+      "get": {
         "responses": {
           "200": {
             "schema": {
-              "properties": {
-                "deleted": {
-                  "minimum": 0,
-                  "type": "integer",
-                  "format": "int64"
-                }
-              },
-              "required": [
-                "deleted"
-              ],
-              "type": "object",
-              "additionalProperties": false
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "images": {
+                    "description": "The first is the main image",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "priceLow": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0,
+                    "x-nullable": true
+                  },
+                  "priceHigh": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0,
+                    "x-nullable": true
+                  },
+                  "startingPrice": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0,
+                    "x-nullable": true
+                  },
+                  "createdAt": {
+                    "type": "string"
+                  },
+                  "catalogs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "description",
+                  "images",
+                  "priceLow",
+                  "priceHigh",
+                  "startingPrice",
+                  "createdAt",
+                  "catalogs"
+                ],
+                "additionalProperties": false
+              }
             },
             "description": ""
           }
         },
-        "tags": [
-          "admin: items"
-        ],
-        "summary": "Delete ALL items",
         "produces": [
           "application/json",
           "application/transit+msgpack",
           "application/transit+json",
           "application/edn"
         ],
-        "parameters": []
-      },
-      "post": {
         "consumes": [
           "application/json",
           "application/transit+msgpack",
           "application/transit+json",
           "application/edn"
         ],
+        "parameters": [],
+        "summary": "List all items",
+        "tags": [
+          "admin: items"
+        ]
+      },
+      "post": {
         "responses": {
           "201": {
             "schema": {
+              "type": "object",
               "properties": {
-                "startingPrice": {
-                  "minimum": 0,
-                  "type": "integer",
-                  "x-nullable": true,
-                  "format": "int64"
-                },
-                "catalogs": {
-                  "items": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "type": "array"
-                },
-                "createdAt": {
-                  "type": "string"
-                },
                 "id": {
                   "type": "string",
                   "format": "uuid"
                 },
-                "priceLow": {
-                  "minimum": 0,
-                  "type": "integer",
-                  "x-nullable": true,
-                  "format": "int64"
-                },
-                "priceHigh": {
-                  "minimum": 0,
-                  "type": "integer",
-                  "x-nullable": true,
-                  "format": "int64"
-                },
                 "title": {
                   "type": "string"
                 },
-                "images": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array",
-                  "description": "The first is the main image"
-                },
                 "description": {
                   "type": "string"
+                },
+                "images": {
+                  "description": "The first is the main image",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "priceLow": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "x-nullable": true
+                },
+                "priceHigh": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "x-nullable": true
+                },
+                "startingPrice": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "x-nullable": true
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "catalogs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
                 }
               },
               "required": [
@@ -450,17 +1296,18 @@
                 "createdAt",
                 "catalogs"
               ],
-              "type": "object",
               "additionalProperties": false
             },
             "description": ""
           }
         },
-        "tags": [
-          "admin: items"
-        ],
-        "summary": "Create item",
         "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
           "application/json",
           "application/transit+msgpack",
           "application/transit+json",
@@ -468,211 +1315,188 @@
         ],
         "parameters": [
           {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
             "schema": {
+              "type": "object",
               "properties": {
-                "startingPrice": {
-                  "minimum": 0,
-                  "type": "integer",
-                  "x-nullable": true,
-                  "format": "int64"
-                },
-                "priceLow": {
-                  "minimum": 0,
-                  "type": "integer",
-                  "x-nullable": true,
-                  "format": "int64"
-                },
-                "priceHigh": {
-                  "minimum": 0,
-                  "type": "integer",
-                  "x-nullable": true,
-                  "format": "int64"
-                },
                 "title": {
-                  "minLength": 1,
-                  "type": "string"
-                },
-                "images": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array",
-                  "description": "Image URLs/keys; the first is the main image"
+                  "type": "string",
+                  "minLength": 1
                 },
                 "description": {
                   "type": "string"
+                },
+                "images": {
+                  "description": "Image URLs/keys; the first is the main image",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "priceLow": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "x-nullable": true
+                },
+                "priceHigh": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "x-nullable": true
+                },
+                "startingPrice": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "x-nullable": true
                 }
               },
               "required": [
                 "title"
               ],
-              "type": "object",
               "additionalProperties": false
-            },
-            "name": "body",
-            "required": true,
-            "description": "",
-            "in": "body"
+            }
           }
+        ],
+        "summary": "Create item",
+        "tags": [
+          "admin: items"
         ]
       },
-      "get": {
-        "consumes": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
+      "delete": {
         "responses": {
           "200": {
             "schema": {
-              "items": {
-                "properties": {
-                  "startingPrice": {
-                    "minimum": 0,
-                    "type": "integer",
-                    "x-nullable": true,
-                    "format": "int64"
-                  },
-                  "catalogs": {
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "type": "array"
-                  },
-                  "createdAt": {
-                    "type": "string"
-                  },
-                  "id": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "priceLow": {
-                    "minimum": 0,
-                    "type": "integer",
-                    "x-nullable": true,
-                    "format": "int64"
-                  },
-                  "priceHigh": {
-                    "minimum": 0,
-                    "type": "integer",
-                    "x-nullable": true,
-                    "format": "int64"
-                  },
-                  "title": {
-                    "type": "string"
-                  },
-                  "images": {
-                    "items": {
-                      "type": "string"
-                    },
-                    "type": "array",
-                    "description": "The first is the main image"
-                  },
-                  "description": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "id",
-                  "title",
-                  "description",
-                  "images",
-                  "priceLow",
-                  "priceHigh",
-                  "startingPrice",
-                  "createdAt",
-                  "catalogs"
-                ],
-                "type": "object",
-                "additionalProperties": false
+              "type": "object",
+              "properties": {
+                "deleted": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0
+                }
               },
-              "type": "array"
+              "required": [
+                "deleted"
+              ],
+              "additionalProperties": false
             },
             "description": ""
           }
         },
+        "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "parameters": [],
+        "summary": "Delete ALL items",
         "tags": [
           "admin: items"
-        ],
-        "summary": "List all items",
-        "produces": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "parameters": []
+        ]
       }
     },
-    "/api/health": {
+    "/api/admin/items/{id}": {
       "get": {
-        "consumes": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
         "responses": {
-          "default": {
-            "description": ""
-          }
-        },
-        "summary": "Health check",
-        "produces": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "parameters": []
-      }
-    },
-    "/api/admin/catalogs": {
-      "post": {
-        "consumes": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "responses": {
-          "201": {
+          "200": {
             "schema": {
+              "type": "object",
               "properties": {
                 "id": {
                   "type": "string",
                   "format": "uuid"
                 },
-                "name": {
+                "title": {
                   "type": "string"
                 },
-                "visible": {
-                  "type": "boolean"
+                "description": {
+                  "type": "string"
                 },
-                "date": {
-                  "type": "string",
+                "images": {
+                  "description": "The first is the main image",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "priceLow": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
                   "x-nullable": true
+                },
+                "priceHigh": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "x-nullable": true
+                },
+                "startingPrice": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "x-nullable": true
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "catalogs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
                 }
               },
               "required": [
                 "id",
-                "name",
-                "date",
-                "visible"
+                "title",
+                "description",
+                "images",
+                "priceLow",
+                "priceHigh",
+                "startingPrice",
+                "createdAt",
+                "catalogs"
               ],
+              "additionalProperties": false
+            },
+            "description": ""
+          },
+          "404": {
+            "schema": {
               "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "error"
+              ],
               "additionalProperties": false
             },
             "description": ""
           }
         },
-        "tags": [
-          "admin: catalogs"
-        ],
-        "summary": "Create catalog",
         "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
           "application/json",
           "application/transit+msgpack",
           "application/transit+json",
@@ -680,97 +1504,228 @@
         ],
         "parameters": [
           {
+            "in": "path",
+            "name": "id",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          }
+        ],
+        "summary": "Get item",
+        "tags": [
+          "admin: items"
+        ]
+      },
+      "delete": {
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "404": {
             "schema": {
+              "type": "object",
               "properties": {
-                "name": {
-                  "minLength": 1,
+                "error": {
                   "type": "string"
-                },
-                "visible": {
-                  "type": "boolean"
-                },
-                "date": {
-                  "example": "2026-12-01",
-                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
-                  "type": "string",
-                  "x-nullable": true
                 }
               },
               "required": [
-                "name"
+                "error"
               ],
-              "type": "object",
               "additionalProperties": false
-            },
-            "name": "body",
-            "required": true,
-            "description": "",
-            "in": "body"
-          }
-        ]
-      },
-      "get": {
-        "consumes": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "responses": {
-          "200": {
-            "schema": {
-              "items": {
-                "properties": {
-                  "id": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "visible": {
-                    "type": "boolean"
-                  },
-                  "date": {
-                    "type": "string",
-                    "x-nullable": true
-                  }
-                },
-                "required": [
-                  "id",
-                  "name",
-                  "date",
-                  "visible"
-                ],
-                "type": "object",
-                "additionalProperties": false
-              },
-              "type": "array"
             },
             "description": ""
           }
         },
-        "tags": [
-          "admin: catalogs"
-        ],
-        "summary": "List all catalogs",
         "produces": [
           "application/json",
           "application/transit+msgpack",
           "application/transit+json",
           "application/edn"
         ],
-        "parameters": []
+        "consumes": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          }
+        ],
+        "summary": "Delete item",
+        "tags": [
+          "admin: items"
+        ]
+      },
+      "patch": {
+        "responses": {
+          "200": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "images": {
+                  "description": "The first is the main image",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "priceLow": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "x-nullable": true
+                },
+                "priceHigh": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "x-nullable": true
+                },
+                "startingPrice": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "x-nullable": true
+                },
+                "createdAt": {
+                  "type": "string"
+                },
+                "catalogs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "title",
+                "description",
+                "images",
+                "priceLow",
+                "priceHigh",
+                "startingPrice",
+                "createdAt",
+                "catalogs"
+              ],
+              "additionalProperties": false
+            },
+            "description": ""
+          },
+          "404": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "error"
+              ],
+              "additionalProperties": false
+            },
+            "description": ""
+          }
+        },
+        "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "description": {
+                  "type": "string"
+                },
+                "images": {
+                  "description": "Image URLs/keys; the first is the main image",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "priceLow": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "x-nullable": true
+                },
+                "priceHigh": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "x-nullable": true
+                },
+                "startingPrice": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "x-nullable": true
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        ],
+        "summary": "Update item (partial)",
+        "tags": [
+          "admin: items"
+        ]
       }
     },
     "/api/admin/images": {
       "post": {
-        "consumes": [
-          "multipart/form-data"
-        ],
         "responses": {
           "201": {
             "schema": {
+              "type": "object",
               "properties": {
                 "url": {
                   "type": "string"
@@ -779,28 +1734,13 @@
               "required": [
                 "url"
               ],
-              "type": "object",
-              "additionalProperties": false
-            },
-            "description": ""
-          },
-          "415": {
-            "schema": {
-              "properties": {
-                "error": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "error"
-              ],
-              "type": "object",
               "additionalProperties": false
             },
             "description": ""
           },
           "413": {
             "schema": {
+              "type": "object",
               "properties": {
                 "error": {
                   "type": "string"
@@ -809,849 +1749,50 @@
               "required": [
                 "error"
               ],
+              "additionalProperties": false
+            },
+            "description": ""
+          },
+          "415": {
+            "schema": {
               "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "error"
+              ],
               "additionalProperties": false
             },
             "description": ""
           }
         },
-        "tags": [
-          "admin: images"
+        "produces": [
+          "application/json",
+          "application/transit+msgpack",
+          "application/transit+json",
+          "application/edn"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "file",
+            "description": "",
+            "type": "file",
+            "required": true
+          }
         ],
         "summary": "Upload one image; returns the URL to put in an item's images",
-        "produces": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "parameters": [
-          {
-            "name": "file",
-            "required": true,
-            "type": "file",
-            "description": "",
-            "in": "formData"
-          }
-        ]
-      }
-    },
-    "/api/admin/catalogs/{id}/items": {
-      "put": {
-        "consumes": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "responses": {
-          "404": {
-            "schema": {
-              "properties": {
-                "error": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "error"
-              ],
-              "type": "object",
-              "additionalProperties": false
-            },
-            "description": ""
-          },
-          "400": {
-            "schema": {
-              "properties": {
-                "error": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "error"
-              ],
-              "type": "object",
-              "additionalProperties": false
-            },
-            "description": ""
-          },
-          "200": {
-            "schema": {
-              "items": {
-                "properties": {
-                  "startingPrice": {
-                    "minimum": 0,
-                    "type": "integer",
-                    "x-nullable": true,
-                    "format": "int64"
-                  },
-                  "catalogs": {
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "type": "array"
-                  },
-                  "createdAt": {
-                    "type": "string"
-                  },
-                  "id": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "priceLow": {
-                    "minimum": 0,
-                    "type": "integer",
-                    "x-nullable": true,
-                    "format": "int64"
-                  },
-                  "priceHigh": {
-                    "minimum": 0,
-                    "type": "integer",
-                    "x-nullable": true,
-                    "format": "int64"
-                  },
-                  "title": {
-                    "type": "string"
-                  },
-                  "images": {
-                    "items": {
-                      "type": "string"
-                    },
-                    "type": "array",
-                    "description": "The first is the main image"
-                  },
-                  "description": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "id",
-                  "title",
-                  "description",
-                  "images",
-                  "priceLow",
-                  "priceHigh",
-                  "startingPrice",
-                  "createdAt",
-                  "catalogs"
-                ],
-                "type": "object",
-                "additionalProperties": false
-              },
-              "type": "array"
-            },
-            "description": ""
-          }
-        },
         "tags": [
-          "admin: catalogs"
-        ],
-        "summary": "Replace catalog contents / reorder (ordered list of item ids)",
-        "produces": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "type": "string",
-            "description": "",
-            "format": "uuid",
-            "in": "path"
-          },
-          {
-            "schema": {
-              "items": {
-                "type": "string",
-                "format": "uuid"
-              },
-              "type": "array"
-            },
-            "name": "body",
-            "required": true,
-            "description": "",
-            "in": "body"
-          }
+          "admin: images"
         ]
-      },
-      "get": {
-        "consumes": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "responses": {
-          "404": {
-            "schema": {
-              "properties": {
-                "error": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "error"
-              ],
-              "type": "object",
-              "additionalProperties": false
-            },
-            "description": ""
-          },
-          "200": {
-            "schema": {
-              "items": {
-                "properties": {
-                  "startingPrice": {
-                    "minimum": 0,
-                    "type": "integer",
-                    "x-nullable": true,
-                    "format": "int64"
-                  },
-                  "catalogs": {
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "type": "array"
-                  },
-                  "createdAt": {
-                    "type": "string"
-                  },
-                  "id": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "priceLow": {
-                    "minimum": 0,
-                    "type": "integer",
-                    "x-nullable": true,
-                    "format": "int64"
-                  },
-                  "priceHigh": {
-                    "minimum": 0,
-                    "type": "integer",
-                    "x-nullable": true,
-                    "format": "int64"
-                  },
-                  "title": {
-                    "type": "string"
-                  },
-                  "images": {
-                    "items": {
-                      "type": "string"
-                    },
-                    "type": "array",
-                    "description": "The first is the main image"
-                  },
-                  "description": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "id",
-                  "title",
-                  "description",
-                  "images",
-                  "priceLow",
-                  "priceHigh",
-                  "startingPrice",
-                  "createdAt",
-                  "catalogs"
-                ],
-                "type": "object",
-                "additionalProperties": false
-              },
-              "type": "array"
-            },
-            "description": ""
-          }
-        },
-        "tags": [
-          "admin: catalogs"
-        ],
-        "summary": "List items in catalog, in catalog order",
-        "produces": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "type": "string",
-            "description": "",
-            "format": "uuid",
-            "in": "path"
-          }
-        ]
-      }
-    },
-    "/api/admin/items/{id}": {
-      "delete": {
-        "consumes": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "responses": {
-          "404": {
-            "schema": {
-              "properties": {
-                "error": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "error"
-              ],
-              "type": "object",
-              "additionalProperties": false
-            },
-            "description": ""
-          },
-          "204": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "admin: items"
-        ],
-        "summary": "Delete item",
-        "produces": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "type": "string",
-            "description": "",
-            "format": "uuid",
-            "in": "path"
-          }
-        ]
-      },
-      "patch": {
-        "consumes": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "responses": {
-          "404": {
-            "schema": {
-              "properties": {
-                "error": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "error"
-              ],
-              "type": "object",
-              "additionalProperties": false
-            },
-            "description": ""
-          },
-          "200": {
-            "schema": {
-              "properties": {
-                "startingPrice": {
-                  "minimum": 0,
-                  "type": "integer",
-                  "x-nullable": true,
-                  "format": "int64"
-                },
-                "catalogs": {
-                  "items": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "type": "array"
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "id": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "priceLow": {
-                  "minimum": 0,
-                  "type": "integer",
-                  "x-nullable": true,
-                  "format": "int64"
-                },
-                "priceHigh": {
-                  "minimum": 0,
-                  "type": "integer",
-                  "x-nullable": true,
-                  "format": "int64"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "images": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array",
-                  "description": "The first is the main image"
-                },
-                "description": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "id",
-                "title",
-                "description",
-                "images",
-                "priceLow",
-                "priceHigh",
-                "startingPrice",
-                "createdAt",
-                "catalogs"
-              ],
-              "type": "object",
-              "additionalProperties": false
-            },
-            "description": ""
-          }
-        },
-        "tags": [
-          "admin: items"
-        ],
-        "summary": "Update item (partial)",
-        "produces": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "type": "string",
-            "description": "",
-            "format": "uuid",
-            "in": "path"
-          },
-          {
-            "schema": {
-              "properties": {
-                "startingPrice": {
-                  "minimum": 0,
-                  "type": "integer",
-                  "x-nullable": true,
-                  "format": "int64"
-                },
-                "priceLow": {
-                  "minimum": 0,
-                  "type": "integer",
-                  "x-nullable": true,
-                  "format": "int64"
-                },
-                "priceHigh": {
-                  "minimum": 0,
-                  "type": "integer",
-                  "x-nullable": true,
-                  "format": "int64"
-                },
-                "title": {
-                  "minLength": 1,
-                  "type": "string"
-                },
-                "images": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array",
-                  "description": "Image URLs/keys; the first is the main image"
-                },
-                "description": {
-                  "type": "string"
-                }
-              },
-              "type": "object",
-              "additionalProperties": false
-            },
-            "name": "body",
-            "required": true,
-            "description": "",
-            "in": "body"
-          }
-        ]
-      },
-      "get": {
-        "consumes": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "responses": {
-          "404": {
-            "schema": {
-              "properties": {
-                "error": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "error"
-              ],
-              "type": "object",
-              "additionalProperties": false
-            },
-            "description": ""
-          },
-          "200": {
-            "schema": {
-              "properties": {
-                "startingPrice": {
-                  "minimum": 0,
-                  "type": "integer",
-                  "x-nullable": true,
-                  "format": "int64"
-                },
-                "catalogs": {
-                  "items": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "type": "array"
-                },
-                "createdAt": {
-                  "type": "string"
-                },
-                "id": {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                "priceLow": {
-                  "minimum": 0,
-                  "type": "integer",
-                  "x-nullable": true,
-                  "format": "int64"
-                },
-                "priceHigh": {
-                  "minimum": 0,
-                  "type": "integer",
-                  "x-nullable": true,
-                  "format": "int64"
-                },
-                "title": {
-                  "type": "string"
-                },
-                "images": {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array",
-                  "description": "The first is the main image"
-                },
-                "description": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "id",
-                "title",
-                "description",
-                "images",
-                "priceLow",
-                "priceHigh",
-                "startingPrice",
-                "createdAt",
-                "catalogs"
-              ],
-              "type": "object",
-              "additionalProperties": false
-            },
-            "description": ""
-          }
-        },
-        "tags": [
-          "admin: items"
-        ],
-        "summary": "Get item",
-        "produces": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "type": "string",
-            "description": "",
-            "format": "uuid",
-            "in": "path"
-          }
-        ]
-      }
-    },
-    "/api/admin/catalogs/{id}/items/{item-id}": {
-      "delete": {
-        "consumes": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "responses": {
-          "404": {
-            "schema": {
-              "properties": {
-                "error": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "error"
-              ],
-              "type": "object",
-              "additionalProperties": false
-            },
-            "description": ""
-          },
-          "204": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "admin: catalogs"
-        ],
-        "summary": "Remove item from catalog",
-        "produces": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "type": "string",
-            "description": "",
-            "format": "uuid",
-            "in": "path"
-          },
-          {
-            "name": "item-id",
-            "required": true,
-            "type": "string",
-            "description": "",
-            "format": "uuid",
-            "in": "path"
-          }
-        ]
-      },
-      "put": {
-        "consumes": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "responses": {
-          "404": {
-            "schema": {
-              "properties": {
-                "error": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "error"
-              ],
-              "type": "object",
-              "additionalProperties": false
-            },
-            "description": ""
-          },
-          "200": {
-            "schema": {
-              "items": {
-                "properties": {
-                  "startingPrice": {
-                    "minimum": 0,
-                    "type": "integer",
-                    "x-nullable": true,
-                    "format": "int64"
-                  },
-                  "catalogs": {
-                    "items": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "type": "array"
-                  },
-                  "createdAt": {
-                    "type": "string"
-                  },
-                  "id": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "priceLow": {
-                    "minimum": 0,
-                    "type": "integer",
-                    "x-nullable": true,
-                    "format": "int64"
-                  },
-                  "priceHigh": {
-                    "minimum": 0,
-                    "type": "integer",
-                    "x-nullable": true,
-                    "format": "int64"
-                  },
-                  "title": {
-                    "type": "string"
-                  },
-                  "images": {
-                    "items": {
-                      "type": "string"
-                    },
-                    "type": "array",
-                    "description": "The first is the main image"
-                  },
-                  "description": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "id",
-                  "title",
-                  "description",
-                  "images",
-                  "priceLow",
-                  "priceHigh",
-                  "startingPrice",
-                  "createdAt",
-                  "catalogs"
-                ],
-                "type": "object",
-                "additionalProperties": false
-              },
-              "type": "array"
-            },
-            "description": ""
-          }
-        },
-        "tags": [
-          "admin: catalogs"
-        ],
-        "summary": "Add item to catalog (or move it). position: 0-based, default last",
-        "produces": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "type": "string",
-            "description": "",
-            "format": "uuid",
-            "in": "path"
-          },
-          {
-            "name": "item-id",
-            "required": true,
-            "type": "string",
-            "description": "",
-            "format": "uuid",
-            "in": "path"
-          },
-          {
-            "minimum": 0,
-            "name": "position",
-            "required": false,
-            "type": "integer",
-            "description": "",
-            "format": "int64",
-            "in": "query"
-          }
-        ]
-      }
-    },
-    "/api/catalogs": {
-      "get": {
-        "consumes": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "responses": {
-          "200": {
-            "schema": {
-              "items": {
-                "properties": {
-                  "id": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "visible": {
-                    "type": "boolean"
-                  },
-                  "date": {
-                    "type": "string",
-                    "x-nullable": true
-                  }
-                },
-                "required": [
-                  "id",
-                  "name",
-                  "date",
-                  "visible"
-                ],
-                "type": "object",
-                "additionalProperties": false
-              },
-              "type": "array"
-            },
-            "description": ""
-          }
-        },
-        "tags": [
-          "public"
-        ],
-        "summary": "List visible catalogs",
-        "produces": [
-          "application/json",
-          "application/transit+msgpack",
-          "application/transit+json",
-          "application/edn"
-        ],
-        "parameters": []
       }
     }
   },
-  "x-id": [
-    "reitit.swagger/default"
-  ],
-  "swagger": "2.0"
+  "definitions": null
 }

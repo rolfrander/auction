@@ -2,7 +2,7 @@
   (:require [auksjon.config :as config]
             [auksjon.handler :as handler]
             [auksjon.images :as images]
-            [auksjon.test-util :refer [fresh-image-store fresh-store]]
+            [auksjon.test-util :refer [authed fresh-image-store fresh-store test-auth]]
             [clojure.string :as str]
             [clojure.test :refer [deftest is testing]]
             [muuntaja.core :as m]
@@ -30,8 +30,8 @@
 
 (deftest upload-and-fetch-test
   (let [images (fresh-image-store)
-        app (handler/app {:store (fresh-store) :image-store images
-                           :image-base-url "http://img.test/auction"})
+        app (authed (handler/app {:store (fresh-store) :image-store images :auth test-auth
+                                   :image-base-url "http://img.test/auction"}))
         data (byte-array (range 100))]
     (testing "upload"
       (let [resp (app (multipart-request "/api/admin/images" "file" "a.png" "image/png" data))

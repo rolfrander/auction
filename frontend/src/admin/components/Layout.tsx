@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router";
-import { cx } from "./ui";
+import { useLogout, useSession } from "../queries";
+import { Button, cx } from "./ui";
 
 const navItems = [
   { to: "/catalogs", label: "Kataloger" },
@@ -7,6 +8,8 @@ const navItems = [
 ];
 
 export function Layout() {
+  const session = useSession();
+  const logout = useLogout();
   return (
     <div className="min-h-dvh">
       <header className="sticky top-0 z-10 border-b border-zinc-200 bg-white/80 backdrop-blur">
@@ -30,9 +33,19 @@ export function Layout() {
               </NavLink>
             ))}
           </nav>
-          <a href="/" className="ml-auto text-sm text-zinc-500 hover:text-zinc-900">
+          <a href="/" className="ml-auto hidden text-sm text-zinc-500 hover:text-zinc-900 sm:inline">
             Til katalogen ↗
           </a>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-auto sm:ml-0"
+            title={session.data ? `Logget inn som ${session.data.username}` : undefined}
+            disabled={logout.isPending}
+            onClick={() => logout.mutate()}
+          >
+            Logg ut
+          </Button>
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">

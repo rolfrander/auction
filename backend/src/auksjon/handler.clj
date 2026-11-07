@@ -1,7 +1,9 @@
 (ns auksjon.handler
   (:require [auksjon.api.catalogs :as catalogs]
+            [auksjon.auth :as auth]
             [auksjon.api.images :as images]
             [auksjon.api.items :as items]
+            [auksjon.api.session :as session]
             [muuntaja.core :as m]
             [reitit.coercion :as coercion]
             [reitit.coercion.malli :as malli-coercion]
@@ -22,12 +24,15 @@
 (defn routes []
   [["/api"
     ["/swagger.json" {:get {:no-doc true
-                            :swagger {:info {:title "Auksjon API" :version "0.1.0"}}
+                            :swagger {:info {:title "Auksjon API" :version "0.1.0"
+                                             :description "/api/admin/* requires the session cookie set by POST /api/login."}}
                             :handler (swagger/create-swagger-handler)}}]
     ["/health" {:get {:summary "Health check" :handler health}}]
     catalogs/public-routes
-    ;; Admin routes: basic-auth middleware goes here later.
+    session/public-routes
+    ;; Session cookie is enforced by auth/wrap-admin-auth in `app`.
     ["/admin"
+     session/admin-routes
      catalogs/admin-routes
      items/admin-routes
      images/admin-routes]]])
@@ -59,8 +64,9 @@
   "Ring handler. Serves /api/* as JSON, Swagger UI at /api/docs and, if
   `static-dir` is given, the built frontend for everything else.
   `store` is an auksjon.db/Store, `image-store` an auksjon.images/ImageStore,
-  `image-base-url` the public URL prefix images are served from."
-  [{:keys [store image-store image-base-url static-dir]}]
+  `image-base-url` the public URL prefix images are served from,
+  `auth` {:user :password-hash} guarding /api/admin/* (see auksjon.auth)."
+  [{:keys [store image-store image-base-url static-dir auth]}]
   (ring/ring-handler
    (ring/router
     (routes)
@@ -82,4 +88,5 @@
        (ring/create-file-handler {:path "/" :root static-dir}))
       (constantly nil))
     (ring/create-default-handler))
-   {:middleware [[wrap-deps {:store store :image-store image-store :image-base-url image-base-url}]]}))
+   {:middleware [[auth/wrap-admin-auth auth]
+                 [wrap-deps {:store store :image-store image-store :image-base-url image-base-url :auth auth}]]}))

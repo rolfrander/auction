@@ -13,6 +13,7 @@ backend/            Clojure (tools.deps)
   deps.edn          deps + aliases (:run, :dev, :test)
   src/auksjon/
     handler.clj     reitit router, middleware, coercion, swagger; all routes under /api
+    auth.clj        login + signed session cookie for /api/admin/* (PBKDF2-SHA256 password hash), -main generates hashes
     main.clj        -main, builds store (env DB_URL, default jdbc:sqlite:auksjon.db) + S3 image store, starts Jetty
     config.clj      env vars merged over backend/.env (KEY=value or KEY: value)
     db.clj          Store protocol — handlers only depend on this
@@ -36,7 +37,8 @@ frontend/           TypeScript + Vite (multi-page build)
 ## Commands
 
 Backend (run from `backend/`):
-- `clojure -M:run` — start server on :3000 (env or `.env`: `PORT`, `DB_URL`, `STATIC_DIR` default `../frontend/dist`, `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_WEB_URL`). Swagger UI: `/api/docs`
+- `clojure -M:run` — start server on :3000 (env or `.env`: `PORT`, `DB_URL`, `STATIC_DIR` default `../frontend/dist`, `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_WEB_URL`, `ADMIN_USER`, `ADMIN_PASSWORD_HASH`). Swagger UI: `/api/docs`
+- `clojure -M:hash-password` — prompt for a password, print `ADMIN_PASSWORD_HASH=pbkdf2-sha256$…` for `.env`
 - `clojure -X:test` — run tests
 - `clojure -M:dev -r` or jack in with the `:dev` alias, then `(start)` — REPL-driven dev with reload on re-eval
 
@@ -51,8 +53,9 @@ Production-style run: `npm run build` in `frontend/`, then `clojure -M:run` in `
 ## Conventions
 
 - API: JSON only, all endpoints under `/api`. Handlers are plain `request -> response` fns returning Clojure data as `:body`; muuntaja encodes it. Add routes in `auksjon.handler/routes`.
+- Auth: `POST /api/login` `{username, password}` sets an HttpOnly `auksjon_session` cookie (Path=/api, SameSite=Strict, 30 days; stateless HMAC token keyed from `ADMIN_PASSWORD_HASH`, so changing the password logs everyone out). Everything under `/api/admin` requires it (`auth/wrap-admin-auth`, outermost middleware, before body parsing) and returns plain 401 otherwise. `POST /api/logout` clears it, `GET /api/admin/session` returns `{username}`. Admin app: `AuthGate` shows `LoginPage` when not logged in; any 401 drops back to it. Tests wrap the app in `test-util/authed`.
 - Images: `POST /api/admin/images` (multipart `file`) stores in S3 under a random key and returns `{url: "<S3_WEB_URL>/<key>"}`; that URL goes in `item.images`. Browsers load images directly from `S3_WEB_URL` (unauthenticated).
-- Every new endpoint gets a test in `backend/test` using `ring.mock.request` against `(handler/app {:store (test-util/fresh-store)})`.
+- Every new endpoint gets a test in `backend/test` using `ring.mock.request` against `(test-util/authed (handler/app {:store (test-util/fresh-store) :auth test-util/test-auth}))`.
 - JSON keys are camelCase (`priceLow`, `mainImage`); request schemas are closed maps (unknown keys → 400).
 - Frontend: keep API calls in `src/api.ts` with explicit response interfaces that mirror the backend's JSON. Strict TypeScript; don't use `any`.
 - Admin app: React function components, Tailwind utility classes (reuse `components/ui.tsx` primitives), server state only via TanStack Query hooks in `queries.ts`. UI text in Norwegian (bokmål).
