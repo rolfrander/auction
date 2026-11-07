@@ -1,0 +1,19 @@
+# Clojure
+backend/.cpcache/
+backend/.nrepl-port
+backend/target/
+.lsp/
+.clj-kondo/.cache/
+.calva/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Local data
+backend/*.db
