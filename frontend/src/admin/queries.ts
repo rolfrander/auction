@@ -120,3 +120,7 @@ export function useDeleteAllItems() {
   const qc = useQueryClient();
   return useMutation({ mutationFn: api.deleteAllItems, onSuccess: () => invalidateAll(qc) });
 }
+
+// --- images ---
+/** Upload one image; call mutateAsync once per file (concurrent calls are fine). */
+export const useUploadImage = () => useMutation({ mutationFn: api.uploadImage });

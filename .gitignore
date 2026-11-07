@@ -17,3 +17,5 @@ frontend/dist/
 
 # Local data
 backend/*.db
+backend/.env
+

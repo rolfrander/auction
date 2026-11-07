@@ -1,11 +1,11 @@
 (ns auksjon.handler-test
   (:require [auksjon.handler :as handler]
-            [auksjon.test-util :refer [fresh-store]]
+            [auksjon.test-util :refer [fresh-image-store fresh-store]]
             [clojure.test :refer [deftest is testing]]
             [muuntaja.core :as m]
             [ring.mock.request :as mock]))
 
-(defn- new-app [] (handler/app {:store (fresh-store)}))
+(defn- new-app [] (handler/app {:store (fresh-store) :image-store (fresh-image-store) :image-base-url "http://img.test"}))
 
 (defn- call
   ([app method path] (call app method path nil))

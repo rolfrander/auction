@@ -55,10 +55,11 @@ export class ApiError extends Error {
 }
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
+  const json = body !== undefined && !(body instanceof FormData);
   const res = await fetch(`/api${path}`, {
     method,
-    headers: body === undefined ? {} : { "Content-Type": "application/json" },
-    body: body === undefined ? undefined : JSON.stringify(body),
+    headers: json ? { "Content-Type": "application/json" } : {},
+    body: body === undefined ? undefined : json ? JSON.stringify(body) : (body as FormData),
   });
   if (!res.ok) {
     let msg = `HTTP ${res.status}`;
@@ -111,3 +112,14 @@ export const updateItem = (id: string, patch: ItemPatch) =>
   request<Item>("PATCH", `/admin/items/${id}`, patch);
 export const deleteItem = (id: string) => request<void>("DELETE", `/admin/items/${id}`);
 export const deleteAllItems = () => request<{ deleted: number }>("DELETE", "/admin/items");
+
+// --- admin: images ---
+export interface UploadedImage {
+  /** URL to store in Item.images */
+  url: string;
+}
+export function uploadImage(file: File): Promise<UploadedImage> {
+  const form = new FormData();
+  form.append("file", file);
+  return request<UploadedImage>("POST", "/admin/images", form);
+}

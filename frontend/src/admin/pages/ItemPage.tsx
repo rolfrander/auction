@@ -204,7 +204,10 @@ function ItemForm({
         <Card>
           <CardHeader title="Bilder" />
           <div className="p-4 sm:p-6">
-            <ImageEditor images={form.images} onChange={(images) => set("images", images)} />
+            <ImageEditor
+              images={form.images}
+              onChange={(update) => setForm((f) => ({ ...f, images: update(f.images) }))}
+            />
           </div>
         </Card>
 

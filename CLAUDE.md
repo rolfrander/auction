@@ -13,8 +13,10 @@ backend/            Clojure (tools.deps)
   deps.edn          deps + aliases (:run, :dev, :test)
   src/auksjon/
     handler.clj     reitit router, middleware, coercion, swagger; all routes under /api
-    main.clj        -main, builds store (env DB_URL, default jdbc:sqlite:auksjon.db), starts Jetty
+    main.clj        -main, builds store (env DB_URL, default jdbc:sqlite:auksjon.db) + S3 image store, starts Jetty
+    config.clj      env vars merged over backend/.env (KEY=value or KEY: value)
     db.clj          Store protocol — handlers only depend on this
+    images.clj      ImageStore protocol; images/s3.clj (AWS SDK v2, path-style), images/memory.clj (tests)
     db/sqlite.clj   SQLite impl (next.jdbc + honeysql), creates tables on start
     schema.clj      malli schemas (coercion + OpenAPI)
     api/*.clj       handlers + route data per resource (public routes, /api/admin/*)
@@ -34,7 +36,7 @@ frontend/           TypeScript + Vite (multi-page build)
 ## Commands
 
 Backend (run from `backend/`):
-- `clojure -M:run` — start server on :3000 (env: `PORT`, `DB_URL`, `STATIC_DIR` default `../frontend/dist`). Swagger UI: `/api/docs`
+- `clojure -M:run` — start server on :3000 (env or `.env`: `PORT`, `DB_URL`, `STATIC_DIR` default `../frontend/dist`, `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_WEB_URL`). Swagger UI: `/api/docs`
 - `clojure -X:test` — run tests
 - `clojure -M:dev -r` or jack in with the `:dev` alias, then `(start)` — REPL-driven dev with reload on re-eval
 
@@ -49,6 +51,7 @@ Production-style run: `npm run build` in `frontend/`, then `clojure -M:run` in `
 ## Conventions
 
 - API: JSON only, all endpoints under `/api`. Handlers are plain `request -> response` fns returning Clojure data as `:body`; muuntaja encodes it. Add routes in `auksjon.handler/routes`.
+- Images: `POST /api/admin/images` (multipart `file`) stores in S3 under a random key and returns `{url: "<S3_WEB_URL>/<key>"}`; that URL goes in `item.images`. Browsers load images directly from `S3_WEB_URL` (unauthenticated).
 - Every new endpoint gets a test in `backend/test` using `ring.mock.request` against `(handler/app {:store (test-util/fresh-store)})`.
 - JSON keys are camelCase (`priceLow`, `mainImage`); request schemas are closed maps (unknown keys → 400).
 - Frontend: keep API calls in `src/api.ts` with explicit response interfaces that mirror the backend's JSON. Strict TypeScript; don't use `any`.
