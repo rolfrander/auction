@@ -39,7 +39,7 @@
       (let [{:keys [status body]} (call app :post "/api/admin/items"
                                         {:title "Vase" :description "Blå" :priceLow 100
                                          :priceHigh 300 :startingPrice 50
-                                         :images ["a.jpg"] :mainImage "a.jpg"})]
+                                         :images ["a.jpg"]})]
         (is (= 201 status))
         (is (= "Vase" (:title body)))
         (is (string? (:id body)))

@@ -106,14 +106,11 @@
                     "type": "string"
                   },
                   "images": {
+                    "description": "The first is the main image",
                     "type": "array",
                     "items": {
                       "type": "string"
                     }
-                  },
-                  "mainImage": {
-                    "type": "string",
-                    "x-nullable": true
                   },
                   "priceLow": {
                     "type": "integer",
@@ -149,7 +146,6 @@
                   "title",
                   "description",
                   "images",
-                  "mainImage",
                   "priceLow",
                   "priceHigh",
                   "startingPrice",
@@ -582,14 +578,11 @@
                     "type": "string"
                   },
                   "images": {
+                    "description": "The first is the main image",
                     "type": "array",
                     "items": {
                       "type": "string"
                     }
-                  },
-                  "mainImage": {
-                    "type": "string",
-                    "x-nullable": true
                   },
                   "priceLow": {
                     "type": "integer",
@@ -625,7 +618,6 @@
                   "title",
                   "description",
                   "images",
-                  "mainImage",
                   "priceLow",
                   "priceHigh",
                   "startingPrice",
@@ -699,14 +691,11 @@
                     "type": "string"
                   },
                   "images": {
+                    "description": "The first is the main image",
                     "type": "array",
                     "items": {
                       "type": "string"
                     }
-                  },
-                  "mainImage": {
-                    "type": "string",
-                    "x-nullable": true
                   },
                   "priceLow": {
                     "type": "integer",
@@ -742,7 +731,6 @@
                   "title",
                   "description",
                   "images",
-                  "mainImage",
                   "priceLow",
                   "priceHigh",
                   "startingPrice",
@@ -846,14 +834,11 @@
                     "type": "string"
                   },
                   "images": {
+                    "description": "The first is the main image",
                     "type": "array",
                     "items": {
                       "type": "string"
                     }
-                  },
-                  "mainImage": {
-                    "type": "string",
-                    "x-nullable": true
                   },
                   "priceLow": {
                     "type": "integer",
@@ -889,7 +874,6 @@
                   "title",
                   "description",
                   "images",
-                  "mainImage",
                   "priceLow",
                   "priceHigh",
                   "startingPrice",
@@ -1038,14 +1022,11 @@
                     "type": "string"
                   },
                   "images": {
+                    "description": "The first is the main image",
                     "type": "array",
                     "items": {
                       "type": "string"
                     }
-                  },
-                  "mainImage": {
-                    "type": "string",
-                    "x-nullable": true
                   },
                   "priceLow": {
                     "type": "integer",
@@ -1081,7 +1062,6 @@
                   "title",
                   "description",
                   "images",
-                  "mainImage",
                   "priceLow",
                   "priceHigh",
                   "startingPrice",
@@ -1129,14 +1109,11 @@
                   "type": "string"
                 },
                 "images": {
+                  "description": "The first is the main image",
                   "type": "array",
                   "items": {
                     "type": "string"
                   }
-                },
-                "mainImage": {
-                  "type": "string",
-                  "x-nullable": true
                 },
                 "priceLow": {
                   "type": "integer",
@@ -1172,7 +1149,6 @@
                 "title",
                 "description",
                 "images",
-                "mainImage",
                 "priceLow",
                 "priceHigh",
                 "startingPrice",
@@ -1213,14 +1189,11 @@
                   "type": "string"
                 },
                 "images": {
+                  "description": "Image URLs/keys; the first is the main image",
                   "type": "array",
                   "items": {
                     "type": "string"
                   }
-                },
-                "mainImage": {
-                  "type": "string",
-                  "x-nullable": true
                 },
                 "priceLow": {
                   "type": "integer",
@@ -1310,14 +1283,11 @@
                   "type": "string"
                 },
                 "images": {
+                  "description": "The first is the main image",
                   "type": "array",
                   "items": {
                     "type": "string"
                   }
-                },
-                "mainImage": {
-                  "type": "string",
-                  "x-nullable": true
                 },
                 "priceLow": {
                   "type": "integer",
@@ -1353,7 +1323,6 @@
                 "title",
                 "description",
                 "images",
-                "mainImage",
                 "priceLow",
                 "priceHigh",
                 "startingPrice",
@@ -1472,14 +1441,11 @@
                   "type": "string"
                 },
                 "images": {
+                  "description": "The first is the main image",
                   "type": "array",
                   "items": {
                     "type": "string"
                   }
-                },
-                "mainImage": {
-                  "type": "string",
-                  "x-nullable": true
                 },
                 "priceLow": {
                   "type": "integer",
@@ -1515,7 +1481,6 @@
                 "title",
                 "description",
                 "images",
-                "mainImage",
                 "priceLow",
                 "priceHigh",
                 "startingPrice",
@@ -1579,14 +1544,11 @@
                   "type": "string"
                 },
                 "images": {
+                  "description": "Image URLs/keys; the first is the main image",
                   "type": "array",
                   "items": {
                     "type": "string"
                   }
-                },
-                "mainImage": {
-                  "type": "string",
-                  "x-nullable": true
                 },
                 "priceLow": {
                   "type": "integer",

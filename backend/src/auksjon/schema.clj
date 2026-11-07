@@ -7,8 +7,7 @@
 (def ItemFields
   [[:title [:string {:min 1}]]
    [:description {:optional true} :string]
-   [:images {:optional true} [:vector :string]]
-   [:mainImage {:optional true} [:maybe :string]]
+   [:images {:optional true :description "Image URLs/keys; the first is the main image"} [:vector :string]]
    [:priceLow {:optional true} Price]
    [:priceHigh {:optional true} Price]
    [:startingPrice {:optional true} Price]])
@@ -27,8 +26,7 @@
    [:id :uuid]
    [:title :string]
    [:description :string]
-   [:images [:vector :string]]
-   [:mainImage [:maybe :string]]
+   [:images {:description "The first is the main image"} [:vector :string]]
    [:priceLow Price]
    [:priceHigh Price]
    [:startingPrice Price]

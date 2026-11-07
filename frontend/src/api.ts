@@ -8,8 +8,8 @@ export interface Item {
   id: string;
   title: string;
   description: string;
+  /** first image is the main image */
   images: string[];
-  mainImage: string | null;
   priceLow: number | null;
   priceHigh: number | null;
   startingPrice: number | null;
@@ -22,7 +22,6 @@ export interface ItemInput {
   title: string;
   description?: string;
   images?: string[];
-  mainImage?: string | null;
   priceLow?: number | null;
   priceHigh?: number | null;
   startingPrice?: number | null;

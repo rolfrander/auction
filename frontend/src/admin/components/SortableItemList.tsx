@@ -85,7 +85,7 @@ function SortableRow({ item, index, onRemove }: { item: Item; index: number; onR
         </svg>
       </button>
       <span className="w-6 text-right text-sm tabular-nums text-zinc-400">{index + 1}</span>
-      <Thumb src={item.mainImage ?? item.images[0]} className="size-12 shrink-0" />
+      <Thumb src={item.images[0]} className="size-12 shrink-0" />
       <div className="min-w-0 flex-1">
         <Link to={`/items/${item.id}`} className="block truncate font-medium text-zinc-900 hover:text-indigo-600">
           {item.title}

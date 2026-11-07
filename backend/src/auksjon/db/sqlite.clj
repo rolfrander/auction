@@ -14,7 +14,6 @@
       title TEXT NOT NULL,
       description TEXT NOT NULL DEFAULT '',
       images TEXT NOT NULL DEFAULT '[]',
-      main_image TEXT,
       price_low INTEGER,
       price_high INTEGER,
       starting_price INTEGER,
@@ -53,7 +52,6 @@
      :title (:title row)
      :description (:description row)
      :images (json/read-value (:images row))
-     :mainImage (:main_image row)
      :priceLow (:price_low row)
      :priceHigh (:price_high row)
      :startingPrice (:starting_price row)
@@ -62,7 +60,7 @@
 
 (def ^:private item-cols
   {:title :title, :description :description, :images :images,
-   :mainImage :main_image, :priceLow :price_low, :priceHigh :price_high,
+   :priceLow :price_low, :priceHigh :price_high,
    :startingPrice :starting_price})
 
 (defn- item->row [item]

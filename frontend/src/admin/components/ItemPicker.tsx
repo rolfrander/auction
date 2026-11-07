@@ -34,7 +34,7 @@ export function ItemPicker({
         <ul className="-mx-2 max-h-96 divide-y divide-zinc-100 overflow-y-auto">
           {candidates.map((item) => (
             <li key={item.id} className="flex items-center gap-3 px-2 py-2">
-              <Thumb src={item.mainImage ?? item.images[0]} className="size-10 shrink-0" />
+              <Thumb src={item.images[0]} className="size-10 shrink-0" />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-zinc-900">{item.title}</p>
                 <p className="truncate text-xs text-zinc-500">{formatRange(item.priceLow, item.priceHigh)}</p>

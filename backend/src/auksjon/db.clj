@@ -3,8 +3,8 @@
   live in auksjon.db.* (currently SQLite).
 
   Entities are plain maps with the same keys as the API JSON:
-    item    {:id :title :description :images :mainImage :priceLow :priceHigh
-             :startingPrice :createdAt :catalogs}
+    item    {:id :title :description :images :priceLow :priceHigh
+             :startingPrice :createdAt :catalogs}   ; first image = main image
     catalog {:id :name :date :visible}
   Ids are java.util.UUID. Lookups return nil when not found.")
 

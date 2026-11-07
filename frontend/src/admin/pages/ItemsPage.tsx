@@ -82,7 +82,7 @@ export function ItemsPage() {
                       to={`/items/${item.id}`}
                       className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-zinc-50 sm:px-6"
                     >
-                      <Thumb src={item.mainImage ?? item.images[0]} className="size-14 shrink-0" />
+                      <Thumb src={item.images[0]} className="size-14 shrink-0" />
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-medium text-zinc-900">{item.title}</p>
                         <p className="truncate text-sm text-zinc-500">{item.description || "Ingen beskrivelse"}</p>

@@ -105,7 +105,6 @@ type FormState = {
   title: string;
   description: string;
   images: string[];
-  mainImage: string | null;
   priceLow: string;
   priceHigh: string;
   startingPrice: string;
@@ -115,15 +114,14 @@ const emptyInput: Required<ItemInput> = {
   title: "",
   description: "",
   images: [],
-  mainImage: null,
   priceLow: null,
   priceHigh: null,
   startingPrice: null,
 };
 
 function toInput(item: Item): Required<ItemInput> {
-  const { title, description, images, mainImage, priceLow, priceHigh, startingPrice } = item;
-  return { title, description, images, mainImage, priceLow, priceHigh, startingPrice };
+  const { title, description, images, priceLow, priceHigh, startingPrice } = item;
+  return { title, description, images, priceLow, priceHigh, startingPrice };
 }
 
 const priceStr = (n: number | null) => (n == null ? "" : String(n));
@@ -143,7 +141,6 @@ function fromForm(f: FormState): Required<ItemInput> {
     title: f.title.trim(),
     description: f.description,
     images: f.images,
-    mainImage: f.mainImage && f.images.includes(f.mainImage) ? f.mainImage : (f.images[0] ?? null),
     priceLow: parsePrice(f.priceLow),
     priceHigh: parsePrice(f.priceHigh),
     startingPrice: parsePrice(f.startingPrice),
@@ -207,11 +204,7 @@ function ItemForm({
         <Card>
           <CardHeader title="Bilder" />
           <div className="p-4 sm:p-6">
-            <ImageEditor
-              images={form.images}
-              mainImage={form.mainImage}
-              onChange={(images, mainImage) => setForm((f) => ({ ...f, images, mainImage }))}
-            />
+            <ImageEditor images={form.images} onChange={(images) => set("images", images)} />
           </div>
         </Card>
 

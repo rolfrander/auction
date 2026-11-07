@@ -2,41 +2,29 @@ import { useState, type ComponentProps } from "react";
 import { Button, cx, Input } from "./ui";
 
 /**
- * Edits the image list and picks the main image. Images are URLs for now;
- * drag-and-drop upload arrives with the backend upload endpoint.
+ * Edits the ordered image list; the first image is the main image.
+ * Images are URLs for now; drag-and-drop upload arrives with the backend upload endpoint.
  */
-export function ImageEditor({
-  images,
-  mainImage,
-  onChange,
-}: {
-  images: string[];
-  mainImage: string | null;
-  onChange: (images: string[], mainImage: string | null) => void;
-}) {
+export function ImageEditor({ images, onChange }: { images: string[]; onChange: (images: string[]) => void }) {
   const [url, setUrl] = useState("");
-  const main = mainImage && images.includes(mainImage) ? mainImage : (images[0] ?? null);
 
   // Not a <form>: this component lives inside the item form.
   const add = () => {
     const u = url.trim();
     if (!u || images.includes(u)) return;
-    onChange([...images, u], main ?? u);
+    onChange([...images, u]);
     setUrl("");
   };
 
   const remove = (img: string) => {
-    const next = images.filter((i) => i !== img);
-    onChange(next, img === main ? (next[0] ?? null) : main);
+    onChange(images.filter((i) => i !== img));
   };
 
-  const move = (img: string, delta: number) => {
-    const from = images.indexOf(img);
-    const to = from + delta;
+  const moveTo = (from: number, to: number) => {
     if (to < 0 || to >= images.length) return;
     const next = [...images];
     next.splice(to, 0, ...next.splice(from, 1));
-    onChange(next, main);
+    onChange(next);
   };
 
   return (
@@ -48,24 +36,24 @@ export function ImageEditor({
               key={img}
               className={cx(
                 "group relative overflow-hidden rounded-lg bg-zinc-100 ring-2",
-                img === main ? "ring-indigo-600" : "ring-transparent",
+                i === 0 ? "ring-indigo-600" : "ring-transparent",
               )}
             >
               <img src={img} alt="" className="aspect-square w-full object-cover" />
-              {img === main && (
+              {i === 0 && (
                 <span className="absolute top-2 left-2 rounded-md bg-indigo-600 px-1.5 py-0.5 text-xs font-medium text-white">
                   Hovedbilde
                 </span>
               )}
               <div className="absolute inset-x-0 bottom-0 flex items-center gap-1 bg-gradient-to-t from-black/60 to-transparent p-2 pt-6 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
-                <IconButton label="Flytt til venstre" disabled={i === 0} onClick={() => move(img, -1)}>
+                <IconButton label="Flytt til venstre" disabled={i === 0} onClick={() => moveTo(i, i - 1)}>
                   ←
                 </IconButton>
-                <IconButton label="Flytt til høyre" disabled={i === images.length - 1} onClick={() => move(img, 1)}>
+                <IconButton label="Flytt til høyre" disabled={i === images.length - 1} onClick={() => moveTo(i, i + 1)}>
                   →
                 </IconButton>
-                {img !== main && (
-                  <IconButton label="Bruk som hovedbilde" onClick={() => onChange(images, img)}>
+                {i !== 0 && (
+                  <IconButton label="Bruk som hovedbilde" onClick={() => moveTo(i, 0)}>
                     ★
                   </IconButton>
                 )}

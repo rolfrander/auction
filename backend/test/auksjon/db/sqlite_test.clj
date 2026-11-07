@@ -7,7 +7,7 @@
   (let [s (fresh-store)
         item (db/create-item s {:title "Vase" :priceLow 100 :priceHigh 200 :images ["a.jpg" "b.jpg"]})]
     (is (uuid? (:id item)))
-    (is (= {:title "Vase" :description "" :images ["a.jpg" "b.jpg"] :mainImage nil
+    (is (= {:title "Vase" :description "" :images ["a.jpg" "b.jpg"]
             :priceLow 100 :priceHigh 200 :startingPrice nil :catalogs []}
            (dissoc item :id :createdAt)))
     (is (= item (db/get-item s (:id item))))
