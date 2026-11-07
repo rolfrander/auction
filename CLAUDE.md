@@ -48,6 +48,8 @@ Frontend (run from `frontend/`):
 - `npm run build` — typecheck + production build to `frontend/dist/`
 - `npm run typecheck` — tsc only
 
+Container: `docker build -t auksjon .` at repo root (multi-stage: Vite build, `clojure -T:build uber` AOT uberjar via `backend/build.clj`, temurin 21 JRE). Run with `-p 3000:3000 -v <vol>:/data --env-file …`; SQLite lives in `/data`, heap capped at 128m via `JAVA_TOOL_OPTIONS`.
+
 Production-style run: `npm run build` in `frontend/`, then `clojure -M:run` in `backend/`; the backend serves `frontend/dist` at `/` (with `/admin/*` falling back to `admin/index.html`) and the API at `/api`.
 
 ## Conventions
