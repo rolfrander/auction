@@ -12,7 +12,7 @@ import {
   PageHeader,
   Thumb,
 } from "../components/ui";
-import { formatPrice, formatRange } from "../format";
+import { formatPrice, formatRange } from "../../format";
 import { useCatalogs, useDeleteAllItems, useItems } from "../queries";
 
 export function ItemsPage() {

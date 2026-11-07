@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import type { Item } from "../../api";
-import { formatRange } from "../format";
+import { formatRange } from "../../format";
 import { Button, Input, Thumb } from "./ui";
 
 /** Searchable list of items not already in the catalog. */

@@ -17,7 +17,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Link } from "react-router";
 import type { Item } from "../../api";
-import { formatPrice, formatRange } from "../format";
+import { formatPrice, formatRange } from "../../format";
 import { Button, cx, Thumb } from "./ui";
 
 export function SortableItemList({

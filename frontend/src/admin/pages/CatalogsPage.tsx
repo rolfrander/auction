@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { Badge, Button, Card, EmptyState, ErrorMessage, Input, Loading, PageHeader } from "../components/ui";
-import { formatDate } from "../format";
+import { formatDate } from "../../format";
 import { useCatalogs, useCreateCatalog } from "../queries";
 
 export function CatalogsPage() {
