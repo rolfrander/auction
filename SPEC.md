@@ -19,7 +19,7 @@ The catalog consists of items. Each item has the following properties:
 - id (an UUID)
 - title
 - description
-- list of images, one of which is the main image
+- list of images, the first of the list is the main image
 - estimated price range with a lower and upper bound
 - starting price
 - date added

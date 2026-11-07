@@ -10,7 +10,8 @@
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [reitit.ring.middleware.parameters :as parameters]
             [reitit.swagger :as swagger]
-            [reitit.swagger-ui :as swagger-ui]))
+            [reitit.swagger-ui :as swagger-ui]
+            [ring.util.response :as resp]))
 
 (defn health [_request]
   {:status 200
@@ -43,6 +44,14 @@
 (defn wrap-store [handler store]
   (fn [req] (handler (assoc req :store store))))
 
+(defn admin-spa-handler
+  "Serves admin/index.html for client-side routes under /admin (paths without a file extension)."
+  [static-dir]
+  (fn [{:keys [request-method uri]}]
+    (when (and (= :get request-method) (re-matches #"/admin(/[^.]*)?" uri))
+      (some-> (resp/file-response "admin/index.html" {:root static-dir})
+              (resp/content-type "text/html; charset=utf-8")))))
+
 (defn app
   "Ring handler. Serves /api/* as JSON, Swagger UI at /api/docs and, if
   `static-dir` is given, the built frontend for everything else."
@@ -62,7 +71,9 @@
    (ring/routes
     (swagger-ui/create-swagger-ui-handler {:path "/api/docs" :url "/api/swagger.json"})
     (if static-dir
-      (ring/create-file-handler {:path "/" :root static-dir})
+      (ring/routes
+       (admin-spa-handler static-dir)
+       (ring/create-file-handler {:path "/" :root static-dir}))
       (constantly nil))
     (ring/create-default-handler))
    {:middleware [[wrap-store store]]}))

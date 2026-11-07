@@ -1,6 +1,6 @@
 # Auksjon
 
-Web app with a Clojure backend (JSON API) and a TypeScript/HTML frontend (Vite, no framework).
+Web app with a Clojure backend (JSON API) and a TypeScript frontend (Vite): a public catalog page and a React admin app.
 
 The app is specified in @SPEC.md
 
@@ -20,11 +20,15 @@ backend/            Clojure (tools.deps)
     api/*.clj       handlers + route data per resource (public routes, /api/admin/*)
   dev/user.clj      REPL helpers: (start) (stop) (restart)
   test/auksjon/     clojure.test, run via cognitect test-runner
-frontend/           TypeScript + Vite
-  index.html        entry page
-  src/main.ts       entry script
-  src/api.ts        typed wrappers around fetch("/api/...")
-  vite.config.ts    dev server on :5173, proxies /api -> localhost:3000
+frontend/           TypeScript + Vite (multi-page build)
+  index.html        public catalog entry -> src/main.ts (plain DOM)
+  admin/index.html  admin entry -> src/admin/main.tsx (React SPA, basename /admin)
+  src/api.ts        typed wrappers around fetch("/api/..."), shared by both apps
+  src/admin/        React 19 + React Router + TanStack Query + Tailwind 4 + dnd-kit
+    queries.ts      query/mutation hooks + cache keys (all server state goes through here)
+    components/     ui.tsx primitives (Button, Card, Field, …) and composite widgets
+    pages/          one component per route
+  vite.config.ts    dev server on :5173, proxies /api -> localhost:3000, /admin/* SPA fallback
 ```
 
 ## Commands
@@ -40,7 +44,7 @@ Frontend (run from `frontend/`):
 - `npm run build` — typecheck + production build to `frontend/dist/`
 - `npm run typecheck` — tsc only
 
-Production-style run: `npm run build` in `frontend/`, then `clojure -M:run` in `backend/`; the backend serves `frontend/dist` at `/` and the API at `/api`.
+Production-style run: `npm run build` in `frontend/`, then `clojure -M:run` in `backend/`; the backend serves `frontend/dist` at `/` (with `/admin/*` falling back to `admin/index.html`) and the API at `/api`.
 
 ## Conventions
 
@@ -48,7 +52,8 @@ Production-style run: `npm run build` in `frontend/`, then `clojure -M:run` in `
 - Every new endpoint gets a test in `backend/test` using `ring.mock.request` against `(handler/app {:store (test-util/fresh-store)})`.
 - JSON keys are camelCase (`priceLow`, `mainImage`); request schemas are closed maps (unknown keys → 400).
 - Frontend: keep API calls in `src/api.ts` with explicit response interfaces that mirror the backend's JSON. Strict TypeScript; don't use `any`.
-- No frontend framework or extra libraries without a reason — prefer plain DOM APIs.
+- Admin app: React function components, Tailwind utility classes (reuse `components/ui.tsx` primitives), server state only via TanStack Query hooks in `queries.ts`. UI text in Norwegian (bokmål).
+- Public app: plain DOM, no framework. No extra libraries without a reason.
 - Both servers bind `0.0.0.0` so they're reachable when ports are published from the sandbox.
 
 ## Before finishing a change

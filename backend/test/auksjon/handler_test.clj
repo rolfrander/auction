@@ -116,3 +116,15 @@
     (is (= ["Vase"] (map :title (:body (call app :get (str "/api/catalogs/" (:id visible) "/items"))))))
     (is (= 404 (:status (call app :get (str "/api/catalogs/" (:id hidden) "/items")))))
     (is (= 404 (:status (call app :get (str "/api/catalogs/" (random-uuid) "/items")))))))
+
+(deftest admin-spa-fallback-test
+  (let [dir (doto (java.io.File. (System/getProperty "java.io.tmpdir") (str "auksjon-static-" (random-uuid)))
+              (.mkdirs))
+        _ (.mkdirs (java.io.File. dir "admin"))
+        _ (spit (java.io.File. dir "admin/index.html") "<html>admin</html>")
+        app (handler/app {:store (fresh-store) :static-dir (.getPath dir)})]
+    (doseq [uri ["/admin" "/admin/" "/admin/items/123"]]
+      (let [resp (app (mock/request :get uri))]
+        (is (= 200 (:status resp)) uri)
+        (is (= "<html>admin</html>" (slurp (:body resp))) uri)))
+    (is (= 404 (:status (app (mock/request :get "/admin/missing.js")))))))
