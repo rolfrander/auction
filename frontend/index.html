@@ -4,13 +4,42 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Auksjon</title>
+    <!-- Page frame from godliatrasop.no ("Massively" by HTML5 UP); loaded first so src/style.css can override it. -->
+    <link rel="stylesheet" href="https://godliatrasop.no/assets/css/main-2023-05-08.css" />
+    <link rel="icon" href="https://godliatrasop.no/images/logo_16.png" sizes="16x16" />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <header class="site-header">
-      <a href="#/" class="site-title">Auksjon</a>
-    </header>
-    <main id="app" aria-live="polite"></main>
+    <div id="wrapper">
+
+      <header id="header">
+        <a href="https://godliatrasop.no/" class="logo">Godlia/Trasop skolers musikkorps</a>
+      </header>
+
+      <nav id="nav">
+        <ul class="links">
+          <li><a href="https://godliatrasop.no/">Godlia/Trasop</a></li>
+          <li class="active"><a href="#/">Auksjonskatalog</a></li>
+        </ul>
+      </nav>
+
+      <div id="main">
+        <section class="post" id="app" aria-live="polite"></section>
+      </div>
+
+      <footer id="footer"></footer>
+
+      <div id="copyright">
+        <ul>
+          <li>&copy; Godlia/Trasop skolers musikkorps</li>
+          <li>Design bygger på mal fra: <a href="https://html5up.net" target="_blank" rel="noopener">HTML5 UP</a></li>
+          <li><a href="https://godliatrasop.no/personvern">Personvernerklæring</a></li>
+        </ul>
+      </div>
+
+      <!-- Normally added by the template's main.js (not loaded here). -->
+      <div class="bg"></div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

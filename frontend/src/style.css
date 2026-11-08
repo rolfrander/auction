@@ -1,178 +1,143 @@
+/* Catalog styles on top of the godliatrasop.no stylesheet (linked in index.html).
+   That sheet styles bare elements globally (ul, dl, p, button, a) and uses #main rules,
+   so content rules are scoped under #app (the section.post) to win on specificity,
+   and overlay buttons are reset explicitly. */
+
 :root {
-  --bg: #faf9f7;
+  --text: #212931;
+  --muted: #646c75;
+  --border: #e4e4e4;
   --surface: #ffffff;
-  --text: #1c1b19;
-  --muted: #6b675f;
-  --border: #e4e0d8;
-  --accent: #8a5a2b;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 2px 8px rgb(0 0 0 / 0.04);
-  --radius: 10px;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  line-height: 1.5;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
+  --accent: #2b4470;
+  --radius: 4px;
+  --heading-font: "Source Sans Pro", Helvetica, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #161514;
-    --surface: #211f1d;
-    --text: #ece9e4;
-    --muted: #a39e95;
-    --border: #36332f;
-    --accent: #d9a46c;
-    --shadow: none;
-  }
+/* The template's TrashHand @font-face points at godliatrasop.no, which sends no CORS
+   header for fonts, so serve a local copy under a separate family name. */
+@font-face {
+  font-family: "TrashHand";
+  src: url("./fonts/TrashHand-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background: var(--bg);
+#header .logo {
+  font-family: "TrashHand", serif;
 }
 
 body.no-scroll {
   overflow: hidden;
 }
 
-a {
-  color: inherit;
+/* --- shared bits inside .post --- */
+
+#app header.major h1 {
+  overflow-wrap: anywhere;
 }
 
-h1,
-h2 {
-  line-height: 1.2;
-  margin: 0;
-}
-
-.site-header {
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
-  padding: 0.75rem 1rem;
-}
-
-.site-title {
-  font-weight: 700;
-  font-size: 1.15rem;
-  text-decoration: none;
-  letter-spacing: 0.02em;
-}
-
-main {
-  max-width: 64rem;
-  margin: 0 auto;
-  padding: 1.5rem 1rem 3rem;
-}
-
-main > h1 {
-  font-size: clamp(1.5rem, 4vw, 2.1rem);
-}
-
-.muted {
-  color: var(--muted);
-}
-
-.catalog-date {
-  margin: 0.25rem 0 0;
-}
-
-.back {
+#app .back {
   display: inline-block;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
   color: var(--muted);
-  text-decoration: none;
-}
-.back:hover {
-  color: var(--text);
+  font-family: var(--heading-font);
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+  border: 0;
 }
 
-.message {
+#app .muted {
   color: var(--muted);
+}
+
+#app .message {
+  color: var(--muted);
+  text-align: center;
   padding: 2rem 0;
 }
 
-.link-button {
-  font: inherit;
-  color: var(--accent);
-  background: none;
-  border: 0;
-  padding: 0;
+#app .link-button {
+  all: unset;
+  color: var(--accent) !important;
   text-decoration: underline;
   cursor: pointer;
 }
 
 /* --- catalog list --- */
 
-.catalog-list {
+#app .catalog-list {
   list-style: none;
   padding: 0;
-  margin: 1.25rem 0 0;
+  margin: 0;
   display: grid;
-  gap: 0.75rem;
+  gap: 1rem;
+}
+#app .catalog-list li {
+  padding: 0;
 }
 
-.catalog-list a {
+#app .catalog-list a {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+  align-items: baseline;
   gap: 0.25rem 1rem;
-  padding: 1rem 1.25rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  text-decoration: none;
+  padding: 1rem 1.5rem;
+  border: 2px solid var(--border);
+  line-height: 1.5;
 }
-.catalog-list a:hover {
+#app .catalog-list a:hover {
   border-color: var(--accent);
 }
 
-.catalog-name {
-  font-weight: 600;
+#app .catalog-name {
+  font-family: var(--heading-font);
+  font-weight: 900;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
   font-size: 1.1rem;
 }
 
 /* --- items --- */
 
-.items {
+#app .items {
   list-style: none;
   padding: 0;
-  margin: 1.5rem 0 0;
+  margin: 0;
   display: grid;
-  gap: 0.75rem;
+  gap: 1rem;
+}
+#app .items > li {
+  padding: 0;
 }
 
-.item-link {
+#app .item-link {
   display: grid;
   grid-template-columns: 7rem 1fr;
   gap: 1rem;
   padding: 0.75rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  text-decoration: none;
+  border: 2px solid var(--border);
+  line-height: 1.6;
 }
-.item-link:hover,
-.item-link:focus-visible {
+#app .item-link:hover,
+#app .item-link:focus-visible {
   border-color: var(--accent);
+  color: inherit !important;
 }
 
 @media (min-width: 40rem) {
-  .item-link {
+  #app .item-link {
     grid-template-columns: 10rem 1fr;
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
 }
 
 .thumb {
   position: relative;
   aspect-ratio: 1;
-  border-radius: calc(var(--radius) - 4px);
   overflow: hidden;
   background: var(--border);
   display: grid;
@@ -189,7 +154,8 @@ main > h1 {
   right: 0.3rem;
   bottom: 0.3rem;
   font-size: 0.7rem;
-  padding: 0.1rem 0.4rem;
+  line-height: 1.4;
+  padding: 0.1rem 0.5rem;
   border-radius: 999px;
   background: rgb(0 0 0 / 0.6);
   color: #fff;
@@ -204,20 +170,22 @@ main > h1 {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 
-.item-body h2 {
-  font-size: 1.05rem;
+#app .item-body h2 {
+  font-size: 1.1rem;
+  line-height: 1.3;
+  margin: 0;
 }
 
 .lot {
   color: var(--muted);
-  font-weight: 500;
 }
 
 .description {
   margin: 0;
+  text-align: left;
   white-space: pre-line;
   overflow-wrap: anywhere;
 }
@@ -231,31 +199,41 @@ main > h1 {
   overflow: hidden;
 }
 
-.prices {
+/* .prices sits in #app (cards) and in the overlay; #main dt/dd rules need the id to override. */
+#app .prices,
+.overlay .prices {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem 1.5rem;
   margin: auto 0 0;
+  padding: 0;
 }
-.prices dt {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--muted);
-}
-.prices dd {
+#app .prices dt,
+.overlay .prices dt {
   margin: 0;
-  font-weight: 600;
+  font-family: var(--heading-font);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+  color: var(--muted);
+  line-height: 1.5;
+}
+#app .prices dd,
+.overlay .prices dd {
+  margin: 0;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
+  line-height: 1.5;
 }
 
-/* --- overlay --- */
+/* --- overlay (appended to body, outside #main) --- */
 
 .overlay {
   position: fixed;
   inset: 0;
   z-index: 10;
-  background: rgb(0 0 0 / 0.75);
+  background: rgb(30 37 45 / 0.85);
   display: grid;
   place-items: center;
   padding: 1rem;
@@ -268,7 +246,7 @@ main > h1 {
   max-height: 100%;
   overflow-y: auto;
   background: var(--surface);
-  border-radius: var(--radius);
+  color: var(--text);
 }
 
 @media (max-width: 40rem) {
@@ -277,24 +255,33 @@ main > h1 {
   }
   .dialog {
     height: 100%;
-    border-radius: 0;
   }
 }
 
-.close {
+/* Undo the template's global button styling. */
+.overlay button {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+.overlay button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.overlay .close {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
   z-index: 2;
   width: 2.5rem;
   height: 2.5rem;
-  border: 0;
   border-radius: 50%;
   background: rgb(0 0 0 / 0.55);
-  color: #fff;
+  color: #fff !important;
   font-size: 1.6rem;
-  line-height: 1;
-  cursor: pointer;
+  line-height: 2.5rem;
+  text-align: center;
 }
 
 .gallery {
@@ -337,33 +324,32 @@ main > h1 {
   }
 }
 
-.nav {
+.overlay .nav {
   position: absolute;
   top: 50%;
   translate: 0 -50%;
   width: 2.75rem;
   height: 2.75rem;
-  border: 0;
   border-radius: 50%;
   background: rgb(255 255 255 / 0.85);
-  color: #000;
+  color: #000 !important;
   font-size: 1.8rem;
-  line-height: 1;
-  cursor: pointer;
+  line-height: 2.6rem;
+  text-align: center;
 }
-.nav:disabled {
+.overlay .nav:disabled {
   opacity: 0.3;
   cursor: default;
 }
-.prev {
+.overlay .prev {
   left: 0.75rem;
 }
-.next {
+.overlay .next {
   right: 0.75rem;
 }
 
 @media (hover: none) {
-  .nav {
+  .overlay .nav {
     display: none;
   }
 }
@@ -374,6 +360,7 @@ main > h1 {
   left: 50%;
   translate: -50% 0;
   font-size: 0.8rem;
+  line-height: 1.5;
   padding: 0.1rem 0.6rem;
   border-radius: 999px;
   background: rgb(0 0 0 / 0.6);
@@ -384,21 +371,18 @@ main > h1 {
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;
-  padding: 0.75rem 1.25rem 0;
+  padding: 0.75rem 1.5rem 0;
 }
-.thumbs button {
+.overlay .thumbs button {
   flex: 0 0 auto;
   width: 4rem;
   height: 4rem;
-  padding: 0;
   border: 2px solid transparent;
-  border-radius: 6px;
   overflow: hidden;
   background: var(--border);
-  cursor: pointer;
   opacity: 0.65;
 }
-.thumbs button.active {
+.overlay .thumbs button.active {
   border-color: var(--accent);
   opacity: 1;
 }
@@ -410,14 +394,16 @@ main > h1 {
 }
 
 .dialog-body {
-  padding: 1rem 1.25rem 1.5rem;
+  padding: 1.25rem 1.5rem 1.5rem;
   display: grid;
   gap: 0.75rem;
+  line-height: 1.75;
 }
 .dialog-body h2 {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
+  margin: 0;
   padding-right: 2rem;
 }
-.dialog-body .prices {
+.overlay .dialog-body .prices {
   margin: 0;
 }

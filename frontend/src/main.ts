@@ -109,7 +109,7 @@ function showList(cs: Catalog[]) {
   document.title = "Auksjon";
   if (cs.length === 0) return app.replaceChildren(h("p", { class: "message" }, "Ingen kataloger er publisert ennå."));
   app.replaceChildren(
-    h("h1", {}, "Kataloger"),
+    h("header", { class: "major" }, h("h1", {}, "Kataloger")),
     h(
       "ul",
       { class: "catalog-list" },
@@ -129,8 +129,7 @@ function showCatalog(catalog: Catalog, items: Item[], hasOthers: boolean) {
   document.title = `${catalog.name} – Auksjon`;
   app.replaceChildren(
     hasOthers ? h("a", { href: "#/", class: "back" }, "← Alle kataloger") : "",
-    h("h1", {}, catalog.name),
-    catalog.date ? h("p", { class: "muted catalog-date" }, formatDate(catalog.date)) : "",
+    h("header", { class: "major" }, h("h1", {}, catalog.name), catalog.date ? h("p", {}, formatDate(catalog.date)) : ""),
     items.length === 0
       ? h("p", { class: "message" }, "Katalogen er tom.")
       : h("ol", { class: "items" }, ...items.map((item, i) => itemCard(catalog, item, i + 1))),

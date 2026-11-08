@@ -18,8 +18,10 @@ frontend/dist/
 # Local data
 backend/*.db
 backend/.env
+backend/scratch.clj
 
 
 # Deploy secrets
 deploy/secrets.env
 deploy/scw.yaml
+.devcontainer/devcontainer-lock.json
