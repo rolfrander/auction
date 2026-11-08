@@ -2,7 +2,7 @@
 
 Web app with a Clojure backend (JSON API) and a TypeScript frontend (Vite): a public catalog page and a React admin app.
 
-The app is specified in @SPEC.md
+The app is specified in @SPEC.md; technical design (stack, Scaleway services, env vars) in @DESIGN.md
 
 Keep your replies extremely concise and focus on conveying the key information. The user is an expert in clojure and only needs a terse summary of responses.
 
@@ -23,6 +23,7 @@ backend/            Clojure (tools.deps)
     api/*.clj       handlers + route data per resource (public routes, /api/admin/*)
   dev/user.clj      REPL helpers: (start) (stop) (restart)
   test/auksjon/     clojure.test, run via cognitect test-runner
+.devcontainer/      dev container: JDK 21 + Clojure CLI, Node 22, scw CLI, jq, host Docker
 deploy/             Scaleway Serverless Containers + Serverless SQL (scw CLI scripts)
 frontend/           TypeScript + Vite (multi-page build)
   index.html        public catalog entry -> src/main.ts (plain DOM)

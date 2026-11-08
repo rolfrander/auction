@@ -1,0 +1,43 @@
+{
+  "name": "auksjon",
+  "build": { "dockerfile": "Dockerfile" },
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "username": "vscode",
+      "installZsh": false,
+      "upgradePackages": false
+    },
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" },
+    // Uses the host's Docker daemon: deploy.sh builds linux/amd64 images, which
+    // Docker Desktop can also do on Apple Silicon.
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+  },
+  "remoteUser": "vscode",
+  "containerEnv": {
+    // scw credentials live in the (gitignored) repo file, not in ~/.config.
+    "SCW_CONFIG_PATH": "${containerWorkspaceFolder}/deploy/scw.yaml"
+  },
+  "mounts": [
+    "source=auksjon-m2,target=/home/vscode/.m2,type=volume",
+    "source=auksjon-gitlibs,target=/home/vscode/.gitlibs,type=volume",
+    "source=auksjon-node-modules,target=${containerWorkspaceFolder}/frontend/node_modules,type=volume"
+  ],
+  // Volumes are created root-owned; hand them to the dev user, then fetch deps.
+  "postCreateCommand": "sudo chown vscode /home/vscode/.m2 /home/vscode/.gitlibs frontend/node_modules && (cd frontend && npm ci) && (cd backend && clojure -P -M:dev:test && clojure -P -T:build)",
+  // 3000: backend (clojure -M:run / REPL (start)), 5173: Vite dev server.
+  "forwardPorts": [3000, 5173],
+  "portsAttributes": {
+    "3000": { "label": "backend" },
+    "5173": { "label": "vite", "onAutoForward": "openBrowser" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "betterthantomorrow.calva",
+        "bradlc.vscode-tailwindcss",
+        "dbaeumer.vscode-eslint",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  }
+}
