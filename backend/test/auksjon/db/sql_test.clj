@@ -1,4 +1,4 @@
-(ns auksjon.db.sqlite-test
+(ns auksjon.db.sql-test
   (:require [auksjon.db :as db]
             [auksjon.test-util :refer [fresh-store]]
             [clojure.test :refer [deftest is testing]]))

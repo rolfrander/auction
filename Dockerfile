@@ -1,6 +1,7 @@
 # Production image: frontend (Vite build) + backend (AOT uberjar) on a JRE.
 #   docker build -t auksjon .
 #   docker run -p 3000:3000 -v auksjon-data:/data --env-file backend/.env auksjon
+# Deployed to Scaleway Serverless Containers by deploy/deploy.sh (DB_URL -> Serverless SQL).
 
 # --- frontend ---------------------------------------------------------------
 FROM node:22-alpine AS frontend

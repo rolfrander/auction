@@ -19,3 +19,7 @@ frontend/dist/
 backend/*.db
 backend/.env
 
+
+# Deploy secrets
+deploy/secrets.env
+deploy/scw.yaml

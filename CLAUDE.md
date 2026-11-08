@@ -18,11 +18,12 @@ backend/            Clojure (tools.deps)
     config.clj      env vars merged over backend/.env (KEY=value or KEY: value)
     db.clj          Store protocol — handlers only depend on this
     images.clj      ImageStore protocol; images/s3.clj (AWS SDK v2, path-style), images/memory.clj (tests)
-    db/sqlite.clj   SQLite impl (next.jdbc + honeysql), creates tables on start
+    db/sql.clj      Store impl for SQLite and PostgreSQL (next.jdbc + honeysql, Hikari pool for PG), picked by DB_URL, creates tables on start
     schema.clj      malli schemas (coercion + OpenAPI)
     api/*.clj       handlers + route data per resource (public routes, /api/admin/*)
   dev/user.clj      REPL helpers: (start) (stop) (restart)
   test/auksjon/     clojure.test, run via cognitect test-runner
+deploy/             Scaleway Serverless Containers + Serverless SQL (scw CLI scripts)
 frontend/           TypeScript + Vite (multi-page build)
   index.html        public catalog entry -> src/main.ts (plain DOM)
   admin/index.html  admin entry -> src/admin/main.tsx (React SPA, basename /admin)
@@ -37,9 +38,9 @@ frontend/           TypeScript + Vite (multi-page build)
 ## Commands
 
 Backend (run from `backend/`):
-- `clojure -M:run` — start server on :3000 (env or `.env`: `PORT`, `DB_URL`, `STATIC_DIR` default `../frontend/dist`, `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_WEB_URL`, `ADMIN_USER`, `ADMIN_PASSWORD_HASH`). Swagger UI: `/api/docs`
+- `clojure -M:run` — start server on :3000 (env or `.env`: `PORT`, `DB_URL`, `STATIC_DIR` default `../frontend/dist`, `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_WEB_URL`, `DB_USER`, `DB_PASSWORD` (Postgres), `ADMIN_USER`, `ADMIN_PASSWORD_HASH`). Swagger UI: `/api/docs`
 - `clojure -M:hash-password` — prompt for a password, print `ADMIN_PASSWORD_HASH=pbkdf2-sha256$…` for `.env`
-- `clojure -X:test` — run tests
+- `clojure -X:test` — run tests (SQLite; set `TEST_DB_URL=jdbc:postgresql://…?user=…&password=…` to run against Postgres — it truncates the tables)
 - `clojure -M:dev -r` or jack in with the `:dev` alias, then `(start)` — REPL-driven dev with reload on re-eval
 
 Frontend (run from `frontend/`):
@@ -49,6 +50,10 @@ Frontend (run from `frontend/`):
 - `npm run typecheck` — tsc only
 
 Container: `docker build -t auksjon .` at repo root (multi-stage: Vite build, `clojure -T:build uber` AOT uberjar via `backend/build.clj`, temurin 21 JRE). Run with `-p 3000:3000 -v <vol>:/data --env-file …`; SQLite lives in `/data`, heap capped at 128m via `JAVA_TOOL_OPTIONS`.
+
+Deploy (Scaleway, `scw` CLI configured with `scw init`): settings in `deploy/config.env`, secrets in `deploy/secrets.env` (gitignored, template `secrets.env.example`).
+- `deploy/setup.sh` — once, idempotent: registry namespace, Serverless SQL DB, container namespace (IAM app + key managed by hand; `DB_USER` = application id, `DB_PASSWORD` = its secret key)
+- `deploy/deploy.sh [tag]` — build (linux/amd64), push `<registry>/auksjon:<git-sha>`, create/update the container with env + secrets, attach `DOMAIN` if set; with a tag, redeploys that pushed image (rollback)
 
 Production-style run: `npm run build` in `frontend/`, then `clojure -M:run` in `backend/`; the backend serves `frontend/dist` at `/` (with `/admin/*` falling back to `admin/index.html`) and the API at `/api`.
 

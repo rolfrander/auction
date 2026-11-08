@@ -1,11 +1,16 @@
-(ns auksjon.db.sqlite
+(ns auksjon.db.sql
+  "auksjon.db/Store on plain SQL that runs on both SQLite and PostgreSQL
+  (TEXT ids/timestamps, INTEGER booleans), picked by the JDBC URL."
   (:require [auksjon.db :as db]
+            [clojure.string :as str]
             [honey.sql :as sql]
             [honey.sql.helpers :as h]
             [jsonista.core :as json]
             [next.jdbc :as jdbc]
+            [next.jdbc.connection :as connection]
             [next.jdbc.result-set :as rs])
-  (:import (java.time Instant)
+  (:import (com.zaxxer.hikari HikariDataSource)
+           (java.time Instant)
            (java.util UUID)))
 
 (def ^:private ddl
@@ -106,11 +111,11 @@
 
 ;; --- Store -------------------------------------------------------------------
 
-(defrecord SqliteStore [ds]
+(defrecord SqlStore [ds]
   db/Store
   (list-catalogs [_ {:keys [visible-only?]}]
     (mapv row->catalog
-          (q ds (cond-> (-> (h/select :*) (h/from :catalog) (h/order-by [:date :desc] :name))
+          (q ds (cond-> (-> (h/select :*) (h/from :catalog) (h/order-by [:date :desc-nulls-last] :name))
                   visible-only? (h/where [:= :visible 1])))))
 
   (get-catalog [_ id] (get-catalog* ds id))
@@ -183,10 +188,31 @@
     (jdbc/with-transaction [tx ds]
       (write-catalog-items! tx catalog-id item-ids))))
 
+(defn- sqlite-datasource [jdbc-url]
+  (jdbc/get-datasource
+   {:jdbcUrl (str jdbc-url (if (str/includes? jdbc-url "?") "&" "?") "foreign_keys=on")}))
+
+(defn- postgres-datasource
+  "Small pool that drops idle connections, so a scale-to-zero database
+  (Scaleway Serverless SQL) can go to sleep when the app is idle."
+  [jdbc-url {:keys [user password]}]
+  (connection/->pool HikariDataSource
+                     (cond-> {:jdbcUrl jdbc-url
+                              :maximumPoolSize 4
+                              :minimumIdle 0
+                              :idleTimeout 60000
+                              :connectionTimeout 30000}
+                       user (assoc :username user)
+                       password (assoc :password password))))
+
 (defn create-store
-  "jdbc-url e.g. \"jdbc:sqlite:auksjon.db\". Creates tables if missing."
-  [jdbc-url]
-  (let [url (str jdbc-url (if (re-find #"\?" jdbc-url) "&" "?") "foreign_keys=on")
-        ds (jdbc/get-datasource {:jdbcUrl url})]
-    (doseq [stmt ddl] (jdbc/execute! ds [stmt]))
-    (->SqliteStore ds)))
+  "jdbc-url: \"jdbc:sqlite:auksjon.db\" or \"jdbc:postgresql://host:5432/db?sslmode=require\".
+  opts {:user :password} (Postgres; may also be in the URL). Creates tables if missing."
+  ([jdbc-url] (create-store jdbc-url {}))
+  ([jdbc-url opts]
+   (let [ds (cond
+              (str/starts-with? jdbc-url "jdbc:sqlite:") (sqlite-datasource jdbc-url)
+              (str/starts-with? jdbc-url "jdbc:postgresql:") (postgres-datasource jdbc-url opts)
+              :else (throw (ex-info "Unsupported DB_URL" {:url jdbc-url})))]
+     (doseq [stmt ddl] (jdbc/execute! ds [stmt]))
+     (->SqlStore ds))))

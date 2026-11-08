@@ -1,7 +1,7 @@
 (ns auksjon.main
   (:require [auksjon.auth :as auth]
             [auksjon.config :as config]
-            [auksjon.db.sqlite :as sqlite]
+            [auksjon.db.sql :as db.sql]
             [auksjon.handler :as handler]
             [auksjon.images.s3 :as s3]
             [clojure.string :as str]
@@ -10,7 +10,9 @@
 
 (defn create-store
   ([] (create-store (config/load-env)))
-  ([env] (sqlite/create-store (get env "DB_URL" "jdbc:sqlite:auksjon.db"))))
+  ([env] (db.sql/create-store (get env "DB_URL" "jdbc:sqlite:auksjon.db")
+                              {:user (not-empty (get env "DB_USER"))
+                               :password (not-empty (get env "DB_PASSWORD"))})))
 
 (defn create-image-store
   ([] (create-image-store (config/load-env)))
@@ -31,7 +33,16 @@
                                  :image-base-url image-base-url :auth auth :static-dir static-dir})
                    {:port port :host "0.0.0.0" :join? join?}))
 
-(defn -main [& _args]
+(defn- cause-chain
+  "One line with the message of each exception in the cause chain; platform log
+  viewers (Scaleway console) truncate stack traces before the root cause."
+  [^Throwable e]
+  (->> (iterate #(.getCause ^Throwable %) e)
+       (take-while some?)
+       (map #(str (.getName (class %)) ": " (.getMessage ^Throwable %)))
+       (str/join " <- ")))
+
+(defn- run [& _args]
   (let [env (config/load-env)
         port (parse-long (get env "PORT" "3000"))
         static-dir (get env "STATIC_DIR" "../frontend/dist")]
@@ -39,3 +50,12 @@
     (start-server {:port port :store (create-store env) :image-store (create-image-store env)
                    :image-base-url (image-base-url env) :auth (auth-config env)
                    :static-dir static-dir :join? true})))
+
+(defn -main [& args]
+  (try
+    (apply run args)
+    (catch Throwable e
+      (binding [*out* *err*]
+        (println "Startup failed:" (cause-chain e))
+        (flush))
+      (System/exit 1))))
