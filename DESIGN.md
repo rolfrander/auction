@@ -77,6 +77,7 @@ Multi-page Vite build with two entries:
 | App | Entry | Stack |
 |---|---|---|
 | Public catalog | `index.html` → `src/main.ts` | plain DOM, no framework (small, fast on phones) |
+| Print list | `list/index.html` → `src/list.ts` | plain DOM; `/list/#<catalogId>` table (nr, tittel, prisantydning, startpris, notater) for print; uses admin endpoints when logged in (hidden catalogs too), else public |
 | Admin | `admin/index.html` → `src/admin/main.tsx` | React 19, React Router 8 (basename `/admin`), TanStack Query 5, Tailwind 4, dnd-kit (reordering) |
 
 - `src/api.ts` holds all `fetch("/api/…")` wrappers with explicit response

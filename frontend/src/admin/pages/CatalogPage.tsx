@@ -53,12 +53,22 @@ export function CatalogPage() {
           </span>
         }
         actions={
-          <ConfirmButton
-            disabled={del.isPending}
-            onConfirm={() => del.mutate(c.id, { onSuccess: () => navigate("/catalogs") })}
-          >
-            Slett katalog
-          </ConfirmButton>
+          <>
+            <a
+              href={`/list/#${encodeURIComponent(c.id)}`}
+              target="_blank"
+              rel="noopener"
+              className="text-sm text-zinc-600 underline hover:text-zinc-900"
+            >
+              Utskriftsliste
+            </a>
+            <ConfirmButton
+              disabled={del.isPending}
+              onConfirm={() => del.mutate(c.id, { onSuccess: () => navigate("/catalogs") })}
+            >
+              Slett katalog
+            </ConfirmButton>
+          </>
         }
       />
       <ErrorMessage error={del.error} />

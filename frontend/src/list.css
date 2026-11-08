@@ -1,0 +1,40 @@
+@page {
+  size: A4;
+  margin: 15mm 12mm;
+}
+
+body {
+  margin: 0;
+  padding: 16px;
+  background: #fff;
+  color: #000;
+  font: 11pt/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media print {
+  body { padding: 0; }
+}
+
+h1 { font-size: 16pt; margin: 0 0 2pt; }
+.date { margin: 0 0 10pt; color: #444; }
+.error { color: #b00; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+thead { display: table-header-group; } /* repeat header on each printed page */
+tr { break-inside: avoid; }
+th, td {
+  border: 1px solid #888;
+  padding: 4pt 6pt;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: #eee; font-weight: 600; }
+@media print {
+  th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+.pos { width: 2.5em; text-align: right; }
+.price { white-space: nowrap; text-align: right; }
+.notes { width: 35%; }
+td.notes { height: 1.6em; }

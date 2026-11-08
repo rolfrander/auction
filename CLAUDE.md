@@ -28,6 +28,7 @@ deploy/             Scaleway Serverless Containers + Serverless SQL (scw CLI scr
 frontend/           TypeScript + Vite (multi-page build)
   index.html        public catalog entry -> src/main.ts (plain DOM)
   admin/index.html  admin entry -> src/admin/main.tsx (React SPA, basename /admin)
+  list/index.html   printable catalog table -> src/list.ts (plain DOM, /list/#<catalogId>; all catalogs when logged in as admin)
   src/api.ts        typed wrappers around fetch("/api/..."), shared by both apps
   src/admin/        React 19 + React Router + TanStack Query + Tailwind 4 + dnd-kit
     queries.ts      query/mutation hooks + cache keys (all server state goes through here)
