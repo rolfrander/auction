@@ -10,6 +10,9 @@
     (swap! state assoc key {:content-type content-type
                             :bytes (Files/readAllBytes (.toPath ^java.io.File file))})
     nil)
+  (upload-form [_ key content-type max-bytes]
+    {:url "memory://images"
+     :fields {"key" key "Content-Type" content-type "max-bytes" (str max-bytes)}})
   (get-image [_ key]
     (when-let [{:keys [content-type ^bytes bytes]} (get @state key)]
       {:content-type content-type

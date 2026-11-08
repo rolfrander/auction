@@ -136,8 +136,27 @@ export interface UploadedImage {
   /** URL to store in Item.images */
   url: string;
 }
-export function uploadImage(file: File): Promise<UploadedImage> {
+export interface UploadForm {
+  /** S3 endpoint the browser POSTs the multipart form to */
+  uploadUrl: string;
+  /** signed form fields; must precede the file field */
+  fields: Record<string, string>;
+  /** public URL of the object once uploaded */
+  url: string;
+}
+export const getUploadForm = (contentType: string, size: number) =>
+  request<UploadForm>("POST", "/admin/images/upload-form", { contentType, size });
+
+/** Uploads straight to S3 using a signed POST form from the backend. */
+export async function uploadImage(file: File): Promise<UploadedImage> {
+  const { uploadUrl, fields, url } = await getUploadForm(file.type, file.size);
   const form = new FormData();
-  form.append("file", file);
-  return request<UploadedImage>("POST", "/admin/images", form);
+  for (const [k, v] of Object.entries(fields)) form.append(k, v);
+  form.append("file", file); // S3 ignores fields after the file
+  const res = await fetch(uploadUrl, { method: "POST", body: form });
+  if (!res.ok) {
+    const code = /<Code>([^<]+)<\/Code>/.exec(await res.text())?.[1];
+    throw new ApiError(res.status, `Opplasting feilet: ${code ?? `HTTP ${res.status}`}`);
+  }
+  return { url };
 }

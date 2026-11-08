@@ -56,7 +56,7 @@ Production-style run: `npm run build` in `frontend/`, then `clojure -M:run` in `
 
 - API: JSON only, all endpoints under `/api`. Handlers are plain `request -> response` fns returning Clojure data as `:body`; muuntaja encodes it. Add routes in `auksjon.handler/routes`.
 - Auth: `POST /api/login` `{username, password}` sets an HttpOnly `auksjon_session` cookie (Path=/api, SameSite=Strict, 30 days; stateless HMAC token keyed from `ADMIN_PASSWORD_HASH`, so changing the password logs everyone out). Everything under `/api/admin` requires it (`auth/wrap-admin-auth`, outermost middleware, before body parsing) and returns plain 401 otherwise. `POST /api/logout` clears it, `GET /api/admin/session` returns `{username}`. Admin app: `AuthGate` shows `LoginPage` when not logged in; any 401 drops back to it. Tests wrap the app in `test-util/authed`.
-- Images: `POST /api/admin/images` (multipart `file`) stores in S3 under a random key and returns `{url: "<S3_WEB_URL>/<key>"}`; that URL goes in `item.images`. Browsers load images directly from `S3_WEB_URL` (unauthenticated).
+- Images (Scaleway Object Storage): admin app calls `POST /api/admin/images/upload-form` `{contentType, size}` → `{uploadUrl, fields, url}` (SigV4 POST policy from `images/post_policy.clj`: exact key, content type, size ≤ 25 MB, `acl=public-read`, 10 min expiry), then POSTs `fields` + `file` directly to S3 (204). `url` (`<S3_WEB_URL>/<key>`) goes in `item.images`. `POST /api/admin/images` (multipart via backend) remains as fallback. Browsers load images directly from `S3_WEB_URL` (unauthenticated). Bucket needs CORS allowing POST from the app origin: `clojure -X auksjon.images.s3/configure-cors! :origins '["https://…"]'` (needs a key with bucket-config permission).
 - Every new endpoint gets a test in `backend/test` using `ring.mock.request` against `(test-util/authed (handler/app {:store (test-util/fresh-store) :auth test-util/test-auth}))`.
 - JSON keys are camelCase (`priceLow`, `mainImage`); request schemas are closed maps (unknown keys → 400).
 - Frontend: keep API calls in `src/api.ts` with explicit response interfaces that mirror the backend's JSON. Strict TypeScript; don't use `any`.
@@ -68,3 +68,10 @@ Production-style run: `npm run build` in `frontend/`, then `clojure -M:run` in `
 
 - `clojure -X:test` passes in `backend/`
 - `npm run build` passes in `frontend/`
+
+## External documentation
+
+This will run on scaleway cloud services. Some neccessary documentation is available here:
+
+- Object storage is S3, but with some variations and limitations. The API is described here: https://www.scaleway.com/en/docs/object-storage/api-cli/object-operations.md
+- Using POST for uploading to S3 directly from browser: https://www.scaleway.com/en/docs/object-storage/api-cli/post-object.md
